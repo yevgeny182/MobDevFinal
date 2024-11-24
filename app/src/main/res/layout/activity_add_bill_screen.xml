@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="28dp"
             android:text="Spend Insight"
             android:textColor="#FFFFFF"
             android:textSize="20dp"
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
-            tools:context=".MainActivity">
+            tools:context=".AddBillScreen">
 
             <TextView
                 android:id="@+id/textView2"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="168dp"
                 android:layout_marginTop="24dp"
-                android:text="Home Page"
+                android:text="Add Bills Page"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -65,7 +65,7 @@
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Page Home"
+                android:text="Page Add Bills"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="180dp"
