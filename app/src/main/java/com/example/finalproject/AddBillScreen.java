@@ -11,42 +11,39 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
-
-    ImageButton add, bills, profile, home;
-
+public class AddBillScreen extends AppCompatActivity {
+    ImageButton home, bills, profile, add;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_add_bill_screen);
 
-        add = findViewById(R.id.addButton);
+        home = findViewById(R.id.homeButton);
         bills = findViewById(R.id.billButton);
         profile = findViewById(R.id.profileButton);
-        home = findViewById(R.id.homeButton);
+        add = findViewById(R.id.addButton);
 
-        add.setOnClickListener(new View.OnClickListener() {
+        home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AddBillScreen.class));
+                startActivity(new Intent(AddBillScreen.this, MainActivity.class));
             }
         });
         bills.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, YourBillScreen.class));
+                startActivity(new Intent(AddBillScreen.this, YourBillScreen.class));
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, ProfileScreen.class));
+                startActivity(new Intent(AddBillScreen.this, ProfileScreen.class));
             }
         });
 
-
-        home.setImageResource(R.drawable.baseline_home_24);
+        add.setImageResource(R.drawable.baseline_add_circle_24);
 
     }
 }

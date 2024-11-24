@@ -11,42 +11,36 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
-
-    ImageButton add, bills, profile, home;
-
+public class YourBillScreen extends AppCompatActivity {
+    ImageButton home, add, profile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_your_bill_screen);
 
-        add = findViewById(R.id.addButton);
-        bills = findViewById(R.id.billButton);
-        profile = findViewById(R.id.profileButton);
         home = findViewById(R.id.homeButton);
+        add = findViewById(R.id.addButton);
+        profile = findViewById(R.id.profileButton);
 
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(YourBillScreen.this, MainActivity.class));
+            }
+        });
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, AddBillScreen.class));
-            }
-        });
-        bills.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, YourBillScreen.class));
+                startActivity(new Intent(YourBillScreen.this, AddBillScreen.class));
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, ProfileScreen.class));
+                startActivity(new Intent(YourBillScreen.this, ProfileScreen.class));
             }
         });
-
-
-        home.setImageResource(R.drawable.baseline_home_24);
 
     }
 }
