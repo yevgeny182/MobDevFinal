@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -62,6 +63,18 @@ public class LoginScreen extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {}
         };
+        user.addTextChangedListener(watcher);
+        pass.addTextChangedListener(watcher);
+
+        login.setOnClickListener(view -> {
+            String username = user.getText().toString().trim();
+            String password = pass.getText().toString().trim();
+            // Proceed to MainActivity
+            if (!username.isEmpty() && !password.isEmpty()) {
+                startActivity(new Intent(LoginScreen.this, MainActivity.class));
+            }
+        });
+
 
         togglePass.setOnClickListener(new View.OnClickListener() {
             boolean passwordSeen = false;
