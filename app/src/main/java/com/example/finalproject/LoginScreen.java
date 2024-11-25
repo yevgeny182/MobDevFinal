@@ -10,17 +10,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
 public class LoginScreen extends AppCompatActivity {
     ImageButton back, togglePass;
     EditText user, pass;
     Button login;
+    TextView forgotPass;
+    private FirebaseAuth loginAuth;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +43,10 @@ public class LoginScreen extends AppCompatActivity {
         user = findViewById(R.id.usernameInput);
         pass = findViewById(R.id.passwordInput);
         login = findViewById(R.id.LoginUserButton);
+        forgotPass = findViewById(R.id.passwordText);
+
+
+        loginAuth = FirebaseAuth.getInstance();
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +85,17 @@ public class LoginScreen extends AppCompatActivity {
             String password = pass.getText().toString().trim();
             // Proceed to MainActivity
             if (!username.isEmpty() && !password.isEmpty()) {
-                startActivity(new Intent(LoginScreen.this, MainActivity.class));
+            loginAuth.signInWithEmailAndPassword(username, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            startActivity(new Intent(LoginScreen.this, MainActivity.class));
+                        }else{
+                            Snackbar.make(view, "Invalid username or password, please try again.", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
 
