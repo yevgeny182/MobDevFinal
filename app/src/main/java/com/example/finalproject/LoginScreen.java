@@ -51,7 +51,7 @@ public class LoginScreen extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                startActivity(new Intent(LoginScreen.this, LandingScreen.class));
             }
         });
 

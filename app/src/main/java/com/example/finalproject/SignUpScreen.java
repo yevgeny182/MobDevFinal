@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -29,11 +30,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SignUpScreen extends AppCompatActivity {
-    ImageButton back;
+    ImageButton back, togglePass;
     Button submit;
     EditText fName, lName, phNumber, homeAdd, email, password;
     private FirebaseAuth signUpAuth;
     FirebaseFirestore userInfoDB;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class SignUpScreen extends AppCompatActivity {
         homeAdd = findViewById(R.id.homeAddress);
         email = findViewById(R.id.emailInput);
         password = findViewById(R.id.passwordInput);
+        togglePass = findViewById(R.id.imageButtonEye);
 
         signUpAuth = FirebaseAuth.getInstance();
         userInfoDB = FirebaseFirestore.getInstance();
@@ -72,6 +75,23 @@ public class SignUpScreen extends AppCompatActivity {
                 String user = email.getText().toString();
                 String pass = password.getText().toString();
                 registerNewUser(FName, LName, phone, home, user, pass);
+            }
+        });
+        togglePass.setOnClickListener(new View.OnClickListener() {
+            boolean passwordSeen = false;
+            @Override
+            public void onClick(View view) {
+                if(passwordSeen){
+                    password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    togglePass.setImageResource(R.drawable.baseline_visibility_off_24);
+                    password.setSelection(password.getText().length());
+                    passwordSeen = false;
+                }else{
+                    password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    togglePass.setImageResource(R.drawable.baseline_visibility_24);
+                    password.setSelection(password.getText().length());
+                    passwordSeen = true;
+                }
             }
         });
 
