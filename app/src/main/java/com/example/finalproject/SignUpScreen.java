@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -35,6 +36,8 @@ public class SignUpScreen extends AppCompatActivity {
     EditText fName, lName, phNumber, homeAdd, email, password;
     private FirebaseAuth signUpAuth;
     FirebaseFirestore userInfoDB;
+    ProgressBar progress;
+    View overlay;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -52,6 +55,8 @@ public class SignUpScreen extends AppCompatActivity {
         email = findViewById(R.id.emailInput);
         password = findViewById(R.id.passwordInput);
         togglePass = findViewById(R.id.imageButtonEye);
+        progress = findViewById(R.id.progressBar);
+        overlay = findViewById(R.id.overlayView);
 
         signUpAuth = FirebaseAuth.getInstance();
         userInfoDB = FirebaseFirestore.getInstance();
@@ -74,7 +79,8 @@ public class SignUpScreen extends AppCompatActivity {
                 String home = homeAdd.getText().toString();
                 String user = email.getText().toString();
                 String pass = password.getText().toString();
-                registerNewUser(FName, LName, phone, home, user, pass);
+                int expenses = 0, bills = 0, unsettled = 0;
+                registerNewUser(FName, LName, phone, home, user, pass, expenses, bills, unsettled);
             }
         });
         togglePass.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +103,7 @@ public class SignUpScreen extends AppCompatActivity {
 
     }
 
-    public void registerNewUser(String FName, String LName, String phone, String home, String username, String password){
+    public void registerNewUser(String FName, String LName, String phone, String home, String username, String password, int expenses, int bills, int unsettled){
         if(TextUtils.isEmpty(FName)
             || TextUtils.isEmpty(LName)
             || TextUtils.isEmpty(phone)
@@ -107,6 +113,9 @@ public class SignUpScreen extends AppCompatActivity {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+        overlay.setVisibility(View.VISIBLE);
+        progress.setVisibility(View.VISIBLE);
+        submit.setEnabled(false);
         signUpAuth.createUserWithEmailAndPassword(username, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -117,20 +126,30 @@ public class SignUpScreen extends AppCompatActivity {
                             userInfo.put("FirstName", FName);
                             userInfo.put("LastName", LName);
                             userInfo.put("PhoneNum", phone);
+                            userInfo.put("Address", home);
                             userInfo.put("Username", username);
                             userInfo.put("Password", password);
+                            userInfo.put("total_expenses", expenses);
+                            userInfo.put("paid_bills", bills);
+                            userInfo.put("unsettled_bills", unsettled);
                             userInfoDB.collection("users").document(userID)
                                 .set(userInfo)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {
                                                 Toast.makeText(SignUpScreen.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+                                                overlay.setVisibility(View.GONE);
+                                                progress.setVisibility(View.GONE);
+                                                submit.setEnabled(true);
                                                 startActivity(new Intent(SignUpScreen.this, LoginScreen.class));
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
+                                                overlay.setVisibility(View.GONE);
+                                                progress.setVisibility(View.GONE);
+                                                submit.setEnabled(true);
                                                 Toast.makeText(SignUpScreen.this, "Firestore Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                             }
                                         });
@@ -141,4 +160,5 @@ public class SignUpScreen extends AppCompatActivity {
                     }
             });
     }
+
 }
