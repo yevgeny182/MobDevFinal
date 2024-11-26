@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        //bottom navigation
         add = findViewById(R.id.addButton);
         bills = findViewById(R.id.billButton);
         profile = findViewById(R.id.profileButton);
@@ -44,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ProfileScreen.class));
             }
         });
-
-
         home.setImageResource(R.drawable.baseline_home_24);
+        // ------------------ Write Here---------
 
-    }
+    } // End OnCreate()
+
+
 }
