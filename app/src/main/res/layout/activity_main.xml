@@ -72,10 +72,11 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="224dp"
+                    android:layout_width="match_parent"
                     android:layout_height="118dp"
                     android:layout_gravity="center|center_horizontal"
                     android:layout_margin="8dp"
+                    android:layout_weight="1"
                     app:cardBackgroundColor="#FFC107"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
@@ -85,11 +86,11 @@
                         android:layout_height="100dp"
 
                         android:layout_gravity="center"
-                        android:ignoreGravity="false">
+                        >
 
                         <!-- Total Expenses Text at the Top -->
                         <TextView
-                            android:id="@+id/total_expenses_label"
+                            android:id="@+id/totalExpensesLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentTop="true"
@@ -101,7 +102,7 @@
 
                         <!-- Centered "0" -->
                         <TextView
-                            android:id="@+id/total_expenses_value"
+                            android:id="@+id/totalExpensesValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -116,9 +117,10 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="224dp"
+                    android:layout_width="match_parent"
                     android:layout_height="118dp"
                     android:layout_margin="8dp"
+                    android:layout_weight="1"
                     app:cardBackgroundColor="#A2FDAD"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="4dp">
