@@ -61,6 +61,103 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="192dp"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="224dp"
+                    android:layout_height="118dp"
+                    android:layout_gravity="center|center_horizontal"
+                    android:layout_margin="8dp"
+                    app:cardBackgroundColor="#FFC107"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+
+                        android:layout_gravity="center"
+                        android:ignoreGravity="false">
+
+                        <!-- Total Expenses Text at the Top -->
+                        <TextView
+                            android:id="@+id/total_expenses_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:paddingTop="8dp"
+                            android:text="Total Expenses"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Centered "0" -->
+                        <TextView
+                            android:id="@+id/total_expenses_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginEnd="104dp"
+                            android:layout_marginBottom="20dp"
+                            android:text="0"
+                            android:textColor="#000000"
+                            android:textSize="32sp" />
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="224dp"
+                    android:layout_height="118dp"
+                    android:layout_margin="8dp"
+                    app:cardBackgroundColor="#A2FDAD"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="4dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+
+                        android:layout_gravity="center">
+
+                        <!-- Total Expenses Text at the Top -->
+                        <TextView
+                            android:id="@+id/total_expenses_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_centerHorizontal="true"
+                            android:paddingTop="8dp"
+                            android:text="Paid Bills"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <!-- Centered "0" -->
+                        <TextView
+                            android:id="@+id/total_expenses_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginEnd="104dp"
+                            android:layout_marginBottom="20dp"
+                            android:text="0"
+                            android:textColor="#000000"
+                            android:textSize="32sp" />
+                    </RelativeLayout>
+
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
