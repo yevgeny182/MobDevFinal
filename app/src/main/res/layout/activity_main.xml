@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:layout_weight="1"
-                    android:text="Home Page"
+                    android:text="Juan Example"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
             </LinearLayout>
@@ -121,7 +121,7 @@
 
                         <!-- Centered "0" -->
                         <TextView
-                            android:id="@+id/totalExpensesValue"
+                            android:id="@+id/tvTotalBillValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -164,7 +164,7 @@
 
                         <!-- Centered "0" -->
                         <TextView
-                            android:id="@+id/total_expenses_value"
+                            android:id="@+id/tvPaidBillValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -205,7 +205,7 @@
                     app:cardElevation="4dp">
 
                     <LinearLayout
-                        android:layout_width="190dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="10dp"
                         android:gravity="center"
@@ -224,8 +224,8 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/totalExpensesValue3"
-                            android:layout_width="match_parent"
+                            android:id="@+id/tvUnsettledBillValue"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentBottom="true"
