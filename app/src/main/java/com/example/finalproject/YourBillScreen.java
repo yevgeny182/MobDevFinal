@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class YourBillScreen extends AppCompatActivity {
     ImageButton home, add, profile;
+
+    Button createBill;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +25,7 @@ public class YourBillScreen extends AppCompatActivity {
         home = findViewById(R.id.homeButton);
         add = findViewById(R.id.addButton);
         profile = findViewById(R.id.profileButton);
+
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
