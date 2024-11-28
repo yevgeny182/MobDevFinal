@@ -18,9 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class ProfileScreen extends AppCompatActivity {
-    ImageButton home, add, bills, profile;
+    ImageButton home, add, bills, profile, logout;
     private FirebaseAuth mAuth;
-    TextView logout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +31,7 @@ public class ProfileScreen extends AppCompatActivity {
         add = findViewById(R.id.addButton);
         bills = findViewById(R.id.billButton);
         profile = findViewById(R.id.profileButton);
-        logout = findViewById(R.id.logoutText);
+        logout = findViewById(R.id.logoutIcon);
 
         mAuth = FirebaseAuth.getInstance();
 
