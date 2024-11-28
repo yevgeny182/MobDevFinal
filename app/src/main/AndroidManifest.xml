@@ -19,7 +19,7 @@
             android:name=".LoginScreen"
             android:exported="false" />
         <activity
-            android:name=".LandingScreen"
+            android:name=".ProfileScreen"
             android:exported="false" />
         <activity
             android:name=".YourBillScreen"
@@ -31,7 +31,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileScreen"
+            android:name=".LandingScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
