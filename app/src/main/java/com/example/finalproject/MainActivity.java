@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,7 +25,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
     TextView expensesBillunsettled;
 
     TextView tvUsername;
+
+    private RecyclerView billRecyclerView;
+    private TextView emptyTextView;
+    private BillAdapter billAdapter;
+    private List<Bill_model_homepage> billList = new ArrayList<>();
 
     FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -76,7 +86,19 @@ public class MainActivity extends AppCompatActivity {
         expensesBillunsettled=findViewById(R.id.tvUnsettledBillValue);
 
         getLoggedInUserData();
+
+
+        billRecyclerView = findViewById(R.id.billRecyclerView);
+        emptyTextView = findViewById(R.id.emptyTextView);
+
 //        getUserDataAndSetDefaults(loggedUserId);
+        // Set up RecyclerView
+        billRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        billAdapter = new BillAdapter(billList);
+        billRecyclerView.setAdapter(billAdapter);
+
+
+        fetchBills();
 
 
     } // End OnCreate()
@@ -128,4 +150,47 @@ public class MainActivity extends AppCompatActivity {
             tvUsername.setText("Not logged in");
         }
     }
-}
+        private void fetchBills() {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            if (currentUser != null) {
+                String loggedUserId = currentUser.getUid();
+
+                db.collection("users").document(loggedUserId).collection("bills")
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                                if (!documents.isEmpty()) {
+                                    // Parse bills into the list
+                                    for (DocumentSnapshot doc : documents) {
+                                        String amount = doc.getString("amount");
+                                        String category = doc.getString("category");
+                                        String dueDate = doc.getString("due_date");
+
+                                        billList.add(new Bill_model_homepage(amount, category, dueDate));
+                                    }
+                                    billAdapter.notifyDataSetChanged();
+
+                                    // Show RecyclerView and hide empty message
+                                    billRecyclerView.setVisibility(View.VISIBLE);
+                                    emptyTextView.setVisibility(View.GONE);
+                                } else {
+                                    // No bills found
+                                    billRecyclerView.setVisibility(View.GONE);
+                                    emptyTextView.setVisibility(View.VISIBLE);
+                                }
+                            } else {
+                                Log.e("BILLS_ERROR", "Error fetching bills: " + task.getException().getMessage());
+                                billRecyclerView.setVisibility(View.GONE);
+                                emptyTextView.setVisibility(View.VISIBLE);
+                            }
+                        });
+            } else {
+                Log.w("USER_WARNING", "No user is currently logged in.");
+                billRecyclerView.setVisibility(View.GONE);
+                emptyTextView.setVisibility(View.VISIBLE);
+            }
+        }
+    }

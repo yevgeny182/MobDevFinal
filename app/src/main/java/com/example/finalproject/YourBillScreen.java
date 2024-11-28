@@ -25,14 +25,7 @@ public class YourBillScreen extends AppCompatActivity {
         home = findViewById(R.id.homeButton);
         add = findViewById(R.id.addButton);
         profile = findViewById(R.id.profileButton);
-        createBill = findViewById(R.id.createBillButton);
 
-        createBill.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(YourBillScreen.this, AddBillScreen.class));
-            }
-        });
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
