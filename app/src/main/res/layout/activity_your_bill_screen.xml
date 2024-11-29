@@ -51,15 +51,18 @@
             android:background="#FFFFFF"
             tools:context=".YourBillScreen">
 
+
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="28dp">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/imageView2"
@@ -80,26 +83,48 @@
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/createBillButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="60dp"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="#007BFF"
-                android:text="Add bill"
-                app:cornerRadius="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+            <!-- Search Bar -->
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/bill_List_recycler"
+            <SearchView
+                android:id="@+id/searchView"
                 android:layout_width="match_parent"
-                android:layout_height="590dp"
-                android:layout_marginTop="46dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="43dp"
+                android:background="@drawable/rounded_border2"
+                android:queryHint="Search bills"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/createBillButton" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+            <LinearLayout
+                android:layout_width="412dp"
+                android:layout_height="480dp"
+                android:layout_marginTop="111dp"
+                android:orientation="vertical"
+                android:padding="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/searchView">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/bill_List_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="279dp"
+                    android:layout_marginTop="56dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/no_bills_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="56dp"
+                    android:gravity="center"
+                    android:text="No Bills Existed"
+                    android:textColor="#A0A0A0"
+                    android:textSize="18sp"
+                    android:textStyle="normal"
+                    android:visibility="gone" />
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E8F3FF"
+        android:padding="16dp">
+
+        <!-- Bill Name -->
+        <TextView
+            android:id="@+id/bill_name_billpage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Default Bill"
+            android:textColor="#000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/status_label_billpage" />
+
+        <!-- Bill Category -->
+        <TextView
+            android:id="@+id/bill_category_billpage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Grocery"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="@id/bill_name_billpage"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Bill Amount -->
+        <TextView
+            android:id="@+id/bill_amount_billpage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="500.00"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/bill_name_billpage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Due Date -->
+        <TextView
+            android:id="@+id/bill_due_date_billpage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Due: None"
+            android:textColor="#888888"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/bill_amount_billpage"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Status (Paid/Unsettled) -->
+        <TextView
+            android:id="@+id/status_label_billpage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Paid"
+            android:textColor="#1C8C00"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bill_amount_billpage" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
