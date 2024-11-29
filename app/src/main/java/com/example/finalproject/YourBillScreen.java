@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -27,6 +28,7 @@ import java.util.List;
 
 public class YourBillScreen extends AppCompatActivity {
     ImageButton home, add, profile;
+    SearchView searchBox;
 
     Button createBill;
 
@@ -35,6 +37,8 @@ public class YourBillScreen extends AppCompatActivity {
     private BillAdapter_billpage billAdapter;
     private List<Bill_model_billpage> billList;
     private FirebaseFirestore db;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +72,8 @@ public class YourBillScreen extends AppCompatActivity {
 //          Code here
         recyclerView = findViewById(R.id.bill_List_recycler);
         noBillsText = findViewById(R.id.no_bills_text);
+        searchBox = findViewById(R.id.searchView);
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -80,6 +86,26 @@ public class YourBillScreen extends AppCompatActivity {
 
         // Load bills from Firestore
         loadBillsFromFirestore();
+
+        searchBox.setIconifiedByDefault(false); // Ensure the search view is expanded by default
+        searchBox.setFocusable(true);          // Make it focusable
+        searchBox.setFocusableInTouchMode(true); // Ensure it reacts to touch
+
+
+        searchBox.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                billAdapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                billAdapter.getFilter().filter(query);
+                return false;
+            }
+        });
+
 
     }
     private void loadBillsFromFirestore() {
