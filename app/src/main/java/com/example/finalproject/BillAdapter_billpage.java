@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,15 +13,18 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billpage.BillViewHolder> {
+public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billpage.BillViewHolder> implements Filterable {
     private List<Bill_model_billpage> billList;
+    private List<Bill_model_billpage> allBillList;
     private Context context;
 
     public BillAdapter_billpage(List<Bill_model_billpage> billList , Context context) {
         this.billList = billList;
         this.context = context;
+        this.allBillList = new ArrayList<>(billList);
     }
 
 
@@ -55,11 +60,45 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
             Toast.makeText(context, "Clicked on: " + bill.getName(), Toast.LENGTH_SHORT).show();
         });
     }
-
     @Override
     public int getItemCount() {
         return billList.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Bill_model_billpage> filteredList = new ArrayList<>();
+
+                if (constraint == null || constraint.length() == 0) {
+                    filteredList.addAll(allBillList); // No filter applied
+                } else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for (Bill_model_billpage bill : allBillList) {
+                        if (bill.getName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(bill);
+                        }
+                    }
+                }
+
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                billList.clear();
+                billList.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+
     static class BillViewHolder extends RecyclerView.ViewHolder {
 
         TextView billName, billCategory, billAmount, billDueDate, statusLabel;
