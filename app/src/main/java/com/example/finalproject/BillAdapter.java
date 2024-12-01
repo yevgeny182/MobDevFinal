@@ -29,9 +29,9 @@ public class BillAdapter extends RecyclerView.Adapter<BillAdapter.BillViewHolder
     @Override
     public void onBindViewHolder(@NonNull BillViewHolder holder, int position) {
         Bill_model_homepage bill = billList.get(position);
-        holder.amountTextView.setText("Amount: " + bill.getAmount());
-        holder.categoryTextView.setText("Category: " + bill.getCategory());
-        holder.dueDateTextView.setText("Due Date: " + bill.getDueDate());
+        holder.amountTextView.setText(bill.getAmount());
+        holder.categoryTextView.setText(bill.getCategory());
+        holder.dueDateTextView.setText(bill.getDueDate());
     }
 
     @Override

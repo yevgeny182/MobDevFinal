@@ -25,7 +25,8 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
     public BillAdapter_billpage(List<Bill_model_billpage> billList , Context context) {
         this.billList = billList;
         this.context = context;
-        this.allBillList = billList;
+        this.allBillList = new ArrayList<>(billList);
+
     }
 
 
@@ -67,6 +68,9 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
     @Override
     public int getItemCount() {
         return billList.size();
+    }
+    public List<Bill_model_billpage> getAllBillList() {
+        return allBillList;
     }
 
     @Override

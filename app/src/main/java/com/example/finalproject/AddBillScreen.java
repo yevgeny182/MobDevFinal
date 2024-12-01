@@ -142,11 +142,12 @@ public class AddBillScreen extends AppCompatActivity {
 
 
     }
-    public void addNewBill(String billName, String category, double amount, String dueDate){
+    public void addNewBill(String billName, String category, double amount, String dueDate) {
         if (TextUtils.isEmpty(billName) || TextUtils.isEmpty(category) || amount <= 0 || TextUtils.isEmpty(dueDate)) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
+
         String userID = userInfoDB.getCurrentUser().getUid();
         Map<String, Object> billInfo = new HashMap<>();
         billInfo.put("BillName", billName);
@@ -155,19 +156,38 @@ public class AddBillScreen extends AppCompatActivity {
         billInfo.put("DueDate", dueDate);
         billInfo.put("status", "unpaid");
 
+        // Step 1: Add the new bill to the "bills" array
         addBill.collection("users").document(userID)
                 .update("bills", FieldValue.arrayUnion(billInfo))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(AddBillScreen.this, "Bill Added Successfully!", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    // Step 2: Fetch the current total_expenses and update it with the new bill amount
+                    addBill.collection("users").document(userID)
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    // Get the current total_expenses value
+                                    Double currentTotalExpenses = documentSnapshot.getDouble("total_expenses");
+                                    if (currentTotalExpenses == null) {
+                                        currentTotalExpenses = 0.0;
+                                    }
+
+                                    // Update the total_expenses by adding the new bill amount
+                                    double newTotalExpenses = currentTotalExpenses + amount;
+
+                                    // Update the total_expenses field in Firestore
+                                    addBill.collection("users").document(userID)
+                                            .update("total_expenses", newTotalExpenses)
+                                            .addOnSuccessListener(unused ->
+                                                    Toast.makeText(AddBillScreen.this, "Bill Added and Total Expenses Updated!", Toast.LENGTH_SHORT).show())
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(AddBillScreen.this, "Error updating total expenses: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                }
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(AddBillScreen.this, "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AddBillScreen.this, "Error adding bill: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                .addOnFailureListener(e ->
+                        Toast.makeText(AddBillScreen.this, "Error adding bill: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+
 }

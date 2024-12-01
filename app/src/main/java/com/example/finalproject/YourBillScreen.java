@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -31,6 +32,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -96,15 +98,17 @@ public class YourBillScreen extends AppCompatActivity {
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+        // Load bills from Firestore
+        billList = new ArrayList<>();
 
         // Set up RecyclerView
-        billList = new ArrayList<>();
         billAdapter = new BillAdapter_billpage(billList,YourBillScreen.this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(billAdapter);
-
-        // Load bills from Firestore
         loadBillsFromFirestore();
+
+        Log.d("BillPage", "Logging BillList:" + billList.size() + " Bills");
+
 
         searchBox.setIconifiedByDefault(false); // Ensure the search view is expanded by default
         searchBox.setFocusable(true);          // Make it focusable
@@ -127,7 +131,7 @@ public class YourBillScreen extends AppCompatActivity {
 
 
     }
-    private void loadBillsFromFirestore() {
+    public void loadBillsFromFirestore() {
         // Reference to the user's document in Firestore
         DocumentReference billsDocRef = db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -146,9 +150,13 @@ public class YourBillScreen extends AppCompatActivity {
                     List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
 
                     if (billsArray != null && !billsArray.isEmpty()) {
+                        // Initialize totals
+                        double totalExpenses = 0.0;
+                        double totalPaidAmount = 0.0;
+                        double totalUnsettledAmount = 0.0;
+
                         // Process each bill in the array
-                        for (int i = 0; i < billsArray.size(); i++) {
-                            Map<String, Object> billMap = billsArray.get(i);
+                        for (Map<String, Object> billMap : billsArray) {
                             try {
                                 // Safely retrieve each field with default values
                                 String id = billMap.containsKey("id") ? billMap.get("id").toString() : "Unknown";
@@ -156,33 +164,68 @@ public class YourBillScreen extends AppCompatActivity {
                                 String category = billMap.containsKey("Category") ? billMap.get("Category").toString() : "Uncategorized";
                                 double amount = billMap.containsKey("Amount") ? Double.parseDouble(billMap.get("Amount").toString()) : 0.0;
                                 String dueDate = billMap.containsKey("DueDate") ? billMap.get("DueDate").toString() : "No Due Date";
-                                String status = billMap.containsKey("status") ? billMap.get("status").toString() : "Unpaid";
+                                String statusBill = billMap.containsKey("status") ? billMap.get("status").toString() : "Unpaid";
 
-                                // Check if the bill is past due and status is "Unpaid"
+                                // Check if the bill's due date has passed
                                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
                                 Date dueDateObj = sdf.parse(dueDate);
                                 Date currentDate = new Date();
 
-                                if (dueDateObj != null && currentDate.after(dueDateObj) && status.equalsIgnoreCase("unpaid")) {
-                                    // Update the bill's status to "Unsettled"
-                                    billsArray.get(i).put("status", "Unsettled");
-                                    billsDocRef.update("bills", billsArray); // Save the updated array to Firestore
-                                    status = "Unsettled"; // Update local variable
+                                if (dueDateObj != null && currentDate.after(dueDateObj) && statusBill.equalsIgnoreCase("unpaid")) {
+                                    // Update the status to "unsettled"
+                                    billMap.put("status", "unsettled");
+//                                    statusBill = "unsettled"; // Update local variable
                                 }
 
-                                // Create a new Bill_model_billpage object
-                                Bill_model_billpage bill = new Bill_model_billpage(id, billName, category, amount, dueDate, status);
+                                // Add to total expenses
+                                totalExpenses += amount;
+
+                                // Add to totals based on status
+                                if ("paid".equalsIgnoreCase(statusBill)) {
+                                    totalPaidAmount += amount;
+                                } else if ("unsettled".equalsIgnoreCase(statusBill)) {
+                                    totalUnsettledAmount += amount;
+                                }
+
+                                // Determine color based on status
+                                int statusColor;
+                                if ("paid".equalsIgnoreCase(statusBill)) {
+                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.paidColor); // Green
+                                } else if ("unsettled".equalsIgnoreCase(statusBill)) {
+                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.unsettledColor); // Red
+                                } else {
+                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.unpaid); // Gray
+                                }
+
+                                // Create a new Bill_model_billpage object with the color
+                                Bill_model_billpage bill = new Bill_model_billpage(id, billName, category, amount, dueDate, statusBill);
+
 
                                 // Add the bill to the list
                                 billList.add(bill);
-                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + status);
+                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill + ", Color: " + statusColor);
                             } catch (Exception e) {
                                 Log.e("FirestoreError", "Error parsing or updating bill data", e);
                             }
                         }
 
+                        // Update Firestore with calculated totals
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("total_expenses", totalExpenses); // Total of all bills
+                        updates.put("paid_bills", totalPaidAmount); // Total of paid bills
+                        updates.put("unsettled_bills", totalUnsettledAmount); // Total of unsettled bills
+
+                        billsDocRef.update(updates)
+                                .addOnSuccessListener(aVoid -> Log.d("FirestoreData", "Totals updated successfully"))
+                                .addOnFailureListener(e -> Log.e("FirestoreError", "Error updating totals", e));
+
+                        // Update the adapter's allBillList with the newly loaded data
+                        billAdapter.getAllBillList().clear();
+                        billAdapter.getAllBillList().addAll(billList);
                         // Notify the adapter about the updated data
                         billAdapter.notifyDataSetChanged();
+
+                        // Log after bills are loaded
                         Log.d("FirestoreData", "Total Bills Loaded: " + billList.size());
                         recyclerView.setVisibility(View.VISIBLE);
                         noBillsText.setVisibility(View.GONE);
@@ -210,6 +253,5 @@ public class YourBillScreen extends AppCompatActivity {
             }
         });
     }
-
 
 }
