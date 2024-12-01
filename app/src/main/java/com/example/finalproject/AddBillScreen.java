@@ -153,6 +153,7 @@ public class AddBillScreen extends AppCompatActivity {
         billInfo.put("Category", category);
         billInfo.put("Amount", amount);
         billInfo.put("DueDate", dueDate);
+        billInfo.put("status", "unpaid");
 
         addBill.collection("users").document(userID)
                 .update("bills", FieldValue.arrayUnion(billInfo))

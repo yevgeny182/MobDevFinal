@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
     public BillAdapter_billpage(List<Bill_model_billpage> billList , Context context) {
         this.billList = billList;
         this.context = context;
-        this.allBillList = new ArrayList<>(billList);
+        this.allBillList = billList;
     }
 
 
@@ -40,24 +41,27 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
     public void onBindViewHolder(@NonNull BillViewHolder holder, int position) {
         Bill_model_billpage bill = billList.get(position);
 
-        holder.billName.setText(bill.getName());
+        holder.billName.setText(bill.getBillName());
         holder.billCategory.setText(bill.getCategory());
         holder.billAmount.setText(String.valueOf(bill.getAmount()));
         holder.billDueDate.setText("Due: " + (bill.getDueDate() != null ? bill.getDueDate() : "None"));
 
         // Set status label with color
-        if (bill.isPaid()) {
+        if (bill.getStatus() == "paid") {
             holder.statusLabel.setText("Paid");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.paidColor));
-        } else {
+        } else if(bill.getStatus() == "unsettled"){
             holder.statusLabel.setText("Unsettled");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.unsettledColor));
+        }else{
+            holder.statusLabel.setText("unpaid");
+            holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.unpaid));
         }
 
         // Set up click listener for the card
         holder.itemView.setOnClickListener(v -> {
             // Show a Toast message when an item is clicked
-            Toast.makeText(context, "Clicked on: " + bill.getName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Clicked on: " + bill.getBillName(), Toast.LENGTH_SHORT).show();
         });
     }
     @Override
@@ -72,18 +76,28 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
             protected FilterResults performFiltering(CharSequence constraint) {
                 List<Bill_model_billpage> filteredList = new ArrayList<>();
 
+                // Debug: Log the size of the full list before filtering
+                Log.d("FilterDebug", "AllBillList Size: " + (allBillList != null ? allBillList.size() : "null"));
+
                 if (constraint == null || constraint.length() == 0) {
-                    filteredList.addAll(allBillList); // No filter applied
+                    // If the query is empty, return the full list
+                    if (allBillList != null) {
+                        filteredList.addAll(allBillList);
+                    }
                 } else {
+                    // Convert the constraint to lower case once for efficiency
                     String filterPattern = constraint.toString().toLowerCase().trim();
 
-                    for (Bill_model_billpage bill : allBillList) {
-                        if (bill.getName().toLowerCase().contains(filterPattern)) {
-                            filteredList.add(bill);
+                    // Iterate through the full list to find matches
+                    for (Bill_model_billpage item : allBillList) {
+                        if (item.getBillName() != null && item.getBillName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(item); // Add matching items to the filtered list
+                            Log.d("FilterDebug", "Match Found: " + item.getBillName());
                         }
                     }
                 }
 
+                // Prepare and return filter results
                 FilterResults results = new FilterResults();
                 results.values = filteredList;
                 return results;
@@ -91,14 +105,16 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
+                // Update the main list and notify the adapter
                 billList.clear();
-                billList.addAll((List) results.values);
+                if (results.values != null) {
+                    billList.addAll((List<Bill_model_billpage>) results.values);
+                    Log.d("FilterDebug", "Filtered List Size: " + billList.size());
+                }
                 notifyDataSetChanged();
             }
         };
     }
-
-
     static class BillViewHolder extends RecyclerView.ViewHolder {
 
         TextView billName, billCategory, billAmount, billDueDate, statusLabel;

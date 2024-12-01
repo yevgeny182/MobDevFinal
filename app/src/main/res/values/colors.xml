@@ -4,5 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="paidColor">#4CAF50</color> <!-- Green -->
     <color name="unsettledColor">#F44336</color> <!-- Red -->
+    <color name="unpaid">#8A8A8A</color> <!-- gray -->
 
 </resources>
