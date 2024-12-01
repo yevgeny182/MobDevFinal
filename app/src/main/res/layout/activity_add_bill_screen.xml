@@ -63,6 +63,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!--
             <EditText
                 android:id="@+id/Category"
                 android:layout_width="349dp"
@@ -76,6 +77,19 @@
                 android:textColorHint="#666666"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+                 -->
+
+
+            <Spinner
+                android:id="@+id/categorySpinner"
+                android:entries="@array/bill_categories"
+                android:layout_width="349dp"
+                android:layout_height="43dp"
+                android:layout_marginStart="28dp"
+                android:layout_marginTop="152dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
 
             <EditText
                 android:id="@+id/Amount"

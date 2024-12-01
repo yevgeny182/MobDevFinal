@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">FinalProject</string>
+    <string-array name="bill_categories">
+        <item>Category</item>
+        <item>Utilities</item>
+        <item>Rent</item>
+        <item>Subscription</item>
+        <item>Others</item>
+    </string-array>
 </resources>
