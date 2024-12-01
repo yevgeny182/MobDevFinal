@@ -1,37 +1,40 @@
 package com.example.finalproject;
 
 public class Bill_model_billpage {
-    private String name;
-    private String category;
-    private double amount;
-    private String dueDate;
-    private boolean isPaid;
+    private String id;
+    private String Billname;
+    private String Category;
+    private double Amount;
+    private String DueDate;
+    private String status;
 
-    public Bill_model_billpage(String name, String category, double amount, String dueDate, boolean isPaid) {
-        this.name = name;
-        this.category = category;
-        this.amount = amount;
-        this.dueDate = dueDate;
-        this.isPaid = isPaid;
+    public Bill_model_billpage(String id, String name, String category, double amount, String dueDate, String status) {
+        this.id = id;
+        this.Billname = name;
+        this.Category = category;
+        this.Amount = amount;
+        this.DueDate = dueDate;
+        this.status = status;
     }
 
-    public String getName() {
-        return name;
+    // Corrected getter for Billname
+    public String getBillName() {
+        return Billname;
     }
 
     public String getCategory() {
-        return category;
+        return Category;
     }
 
     public double getAmount() {
-        return amount;
+        return Amount;
     }
 
     public String getDueDate() {
-        return dueDate;
+        return DueDate;
     }
 
-    public boolean isPaid() {
-        return isPaid;
+    public String getStatus() {
+        return status;
     }
 }
