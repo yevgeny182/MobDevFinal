@@ -172,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
                         if (billsArray != null && !billsArray.isEmpty()) {
                             // Initialize counters and totals
                             double totalExpenses = 0.0;
-                            int paidBillsCount = 0;
-                            int unsettledBillsCount = 0;
+                            double paidBillsCount = 0.0;
+                            double unsettledBillsCount = 0.0;
 
                             // Clear the existing bill list
                             billList.clear();
@@ -192,9 +192,9 @@ public class MainActivity extends AppCompatActivity {
 
                                 // Increment counts based on status
                                 if ("paid".equalsIgnoreCase(status)) {
-                                    paidBillsCount++;
+                                    paidBillsCount += amount;
                                 } else if ("unsettled".equalsIgnoreCase(status)) {
-                                    unsettledBillsCount++;
+                                    unsettledBillsCount += amount;
                                 }
 
                                 // Add to the RecyclerView list

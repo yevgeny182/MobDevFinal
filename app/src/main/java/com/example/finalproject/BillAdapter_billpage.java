@@ -48,10 +48,10 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
         holder.billDueDate.setText("Due: " + (bill.getDueDate() != null ? bill.getDueDate() : "None"));
 
         // Set status label with color
-        if (bill.getStatus() == "paid") {
+        if (bill.getStatus().equalsIgnoreCase("paid")) {
             holder.statusLabel.setText("Paid");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.paidColor));
-        } else if(bill.getStatus() == "unsettled"){
+        } else if(bill.getStatus().equalsIgnoreCase("unsettled")){
             holder.statusLabel.setText("Unsettled");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.unsettledColor));
         }else{

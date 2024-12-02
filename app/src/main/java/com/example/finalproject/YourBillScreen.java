@@ -150,11 +150,6 @@ public class YourBillScreen extends AppCompatActivity {
                     List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
 
                     if (billsArray != null && !billsArray.isEmpty()) {
-                        // Initialize totals
-                        double totalExpenses = 0.0;
-                        double totalPaidAmount = 0.0;
-                        double totalUnsettledAmount = 0.0;
-
                         // Process each bill in the array
                         for (Map<String, Object> billMap : billsArray) {
                             try {
@@ -164,7 +159,7 @@ public class YourBillScreen extends AppCompatActivity {
                                 String category = billMap.containsKey("Category") ? billMap.get("Category").toString() : "Uncategorized";
                                 double amount = billMap.containsKey("Amount") ? Double.parseDouble(billMap.get("Amount").toString()) : 0.0;
                                 String dueDate = billMap.containsKey("DueDate") ? billMap.get("DueDate").toString() : "No Due Date";
-                                String statusBill = billMap.containsKey("status") ? billMap.get("status").toString() : "Unpaid";
+                                String statusBill = billMap.containsKey("status") ? billMap.get("status").toString() : "Error";
 
                                 // Check if the bill's due date has passed
                                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
@@ -174,27 +169,7 @@ public class YourBillScreen extends AppCompatActivity {
                                 if (dueDateObj != null && currentDate.after(dueDateObj) && statusBill.equalsIgnoreCase("unpaid")) {
                                     // Update the status to "unsettled"
                                     billMap.put("status", "unsettled");
-//                                    statusBill = "unsettled"; // Update local variable
-                                }
-
-                                // Add to total expenses
-                                totalExpenses += amount;
-
-                                // Add to totals based on status
-                                if ("paid".equalsIgnoreCase(statusBill)) {
-                                    totalPaidAmount += amount;
-                                } else if ("unsettled".equalsIgnoreCase(statusBill)) {
-                                    totalUnsettledAmount += amount;
-                                }
-
-                                // Determine color based on status
-                                int statusColor;
-                                if ("paid".equalsIgnoreCase(statusBill)) {
-                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.paidColor); // Green
-                                } else if ("unsettled".equalsIgnoreCase(statusBill)) {
-                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.unsettledColor); // Red
-                                } else {
-                                    statusColor = ContextCompat.getColor(YourBillScreen.this, R.color.unpaid); // Gray
+                                    statusBill = "unsettled"; // Update local variable
                                 }
 
                                 // Create a new Bill_model_billpage object with the color
@@ -203,21 +178,11 @@ public class YourBillScreen extends AppCompatActivity {
 
                                 // Add the bill to the list
                                 billList.add(bill);
-                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill + ", Color: " + statusColor);
+                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill );
                             } catch (Exception e) {
                                 Log.e("FirestoreError", "Error parsing or updating bill data", e);
                             }
                         }
-
-                        // Update Firestore with calculated totals
-                        Map<String, Object> updates = new HashMap<>();
-                        updates.put("total_expenses", totalExpenses); // Total of all bills
-                        updates.put("paid_bills", totalPaidAmount); // Total of paid bills
-                        updates.put("unsettled_bills", totalUnsettledAmount); // Total of unsettled bills
-
-                        billsDocRef.update(updates)
-                                .addOnSuccessListener(aVoid -> Log.d("FirestoreData", "Totals updated successfully"))
-                                .addOnFailureListener(e -> Log.e("FirestoreError", "Error updating totals", e));
 
                         // Update the adapter's allBillList with the newly loaded data
                         billAdapter.getAllBillList().clear();
@@ -253,5 +218,6 @@ public class YourBillScreen extends AppCompatActivity {
             }
         });
     }
+
 
 }
