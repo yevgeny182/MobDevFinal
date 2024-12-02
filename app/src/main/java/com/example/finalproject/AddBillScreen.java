@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -160,7 +162,8 @@ public class AddBillScreen extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(AddBillScreen.this, "Bill Added Successfully!", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(AddBillScreen.this, "Bill Added Successfully!", Toast.LENGTH_SHORT).show();
+                        showSuccessDialog();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -169,5 +172,18 @@ public class AddBillScreen extends AppCompatActivity {
                         Toast.makeText(AddBillScreen.this, "Error adding bill: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+    private void showSuccessDialog(){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle("Success!");
+        build.setMessage("Your Bill has been added successfully!");
+        build.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        build.setCancelable(false);
+        build.show();
     }
 }
