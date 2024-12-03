@@ -100,9 +100,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
             <LinearLayout
-                android:layout_width="412dp"
-                android:layout_height="480dp"
-                android:layout_marginTop="111dp"
+                android:layout_width="match_parent"
+                android:layout_height="580dp"
                 android:orientation="vertical"
                 android:padding="8dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -111,8 +110,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/bill_List_recycler"
                     android:layout_width="match_parent"
-                    android:layout_height="279dp"
-                    android:layout_marginTop="56dp"
+                    android:layout_height="wrap_content"
+
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
