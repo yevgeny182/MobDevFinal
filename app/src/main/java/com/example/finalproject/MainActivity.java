@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     TextView expensesCost;
     TextView expensesBillPaid;
     TextView expensesBillunsettled;
+    ImageView profileImage;
+
 
     TextView tvUsername;
 
@@ -60,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         bills = findViewById(R.id.billButton);
         profile = findViewById(R.id.profileButton);
         home = findViewById(R.id.homeButton);
+        profileImage = findViewById(R.id.profile_image);
+
+        loadProfileImage();
 
         add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,4 +200,30 @@ public class MainActivity extends AppCompatActivity {
                 emptyTextView.setVisibility(View.VISIBLE);
             }
         }
+
+    private void loadProfileImage() {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) return;
+
+        String userId = currentUser.getUid();
+        firestore.collection("users").document(userId).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            String imageUrl = document.getString("profileImageUrl");
+                            if (imageUrl != null) {
+                                Glide.with(this)
+                                        .load(imageUrl)
+                                        .placeholder(R.drawable.avatar)
+                                        .error(R.drawable.avatar)
+                                        .into(profileImage);
+                            }
+                        }
+                    } else {
+                        Log.e("Firestore", "Error getting user document", task.getException());
+                    }
+                });
+    }
     }
