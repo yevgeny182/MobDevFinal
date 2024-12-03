@@ -251,6 +251,11 @@ public class MainActivity extends AppCompatActivity {
             billRecyclerView.setVisibility(View.GONE);
             emptyTextView.setVisibility(View.VISIBLE);
         }
+
+
+
+    }
+
     private void loadProfileImage() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -275,9 +280,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("Firestore", "Error getting user document", task.getException());
                     }
                 });
-    }
-    }
-
     }
 
 }
