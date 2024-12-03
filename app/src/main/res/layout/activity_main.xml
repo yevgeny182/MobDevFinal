@@ -218,7 +218,7 @@
                             android:layout_centerHorizontal="true"
                             android:gravity="center"
                             android:paddingTop="8dp"
-                            android:text="Total Expenses"
+                            android:text="Unsettled Bills"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 

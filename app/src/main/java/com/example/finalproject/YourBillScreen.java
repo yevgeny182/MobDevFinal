@@ -2,6 +2,10 @@ package com.example.finalproject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,10 +17,14 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +39,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -96,15 +105,17 @@ public class YourBillScreen extends AppCompatActivity {
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+        // Load bills from Firestore
+        billList = new ArrayList<>();
 
         // Set up RecyclerView
-        billList = new ArrayList<>();
         billAdapter = new BillAdapter_billpage(billList,YourBillScreen.this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(billAdapter);
-
-        // Load bills from Firestore
         loadBillsFromFirestore();
+
+        Log.d("BillPage", "Logging BillList:" + billList.size() + " Bills");
+
 
         searchBox.setIconifiedByDefault(false); // Ensure the search view is expanded by default
         searchBox.setFocusable(true);          // Make it focusable
@@ -125,9 +136,9 @@ public class YourBillScreen extends AppCompatActivity {
             }
         });
 
-
+        enableSwipeToDelete();
     }
-    private void loadBillsFromFirestore() {
+    public void loadBillsFromFirestore() {
         // Reference to the user's document in Firestore
         DocumentReference billsDocRef = db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -147,8 +158,7 @@ public class YourBillScreen extends AppCompatActivity {
 
                     if (billsArray != null && !billsArray.isEmpty()) {
                         // Process each bill in the array
-                        for (int i = 0; i < billsArray.size(); i++) {
-                            Map<String, Object> billMap = billsArray.get(i);
+                        for (Map<String, Object> billMap : billsArray) {
                             try {
                                 // Safely retrieve each field with default values
                                 String id = billMap.containsKey("id") ? billMap.get("id").toString() : "Unknown";
@@ -156,33 +166,38 @@ public class YourBillScreen extends AppCompatActivity {
                                 String category = billMap.containsKey("Category") ? billMap.get("Category").toString() : "Uncategorized";
                                 double amount = billMap.containsKey("Amount") ? Double.parseDouble(billMap.get("Amount").toString()) : 0.0;
                                 String dueDate = billMap.containsKey("DueDate") ? billMap.get("DueDate").toString() : "No Due Date";
-                                String status = billMap.containsKey("status") ? billMap.get("status").toString() : "Unpaid";
+                                String statusBill = billMap.containsKey("status") ? billMap.get("status").toString() : "Error";
 
-                                // Check if the bill is past due and status is "Unpaid"
+                                // Check if the bill's due date has passed
                                 SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
                                 Date dueDateObj = sdf.parse(dueDate);
                                 Date currentDate = new Date();
 
-                                if (dueDateObj != null && currentDate.after(dueDateObj) && status.equalsIgnoreCase("unpaid")) {
-                                    // Update the bill's status to "Unsettled"
-                                    billsArray.get(i).put("status", "Unsettled");
-                                    billsDocRef.update("bills", billsArray); // Save the updated array to Firestore
-                                    status = "Unsettled"; // Update local variable
+                                if (dueDateObj != null && currentDate.after(dueDateObj) && statusBill.equalsIgnoreCase("unpaid")) {
+                                    // Update the status to "unsettled"
+                                    billMap.put("status", "unsettled");
+                                    statusBill = "unsettled"; // Update local variable
                                 }
 
-                                // Create a new Bill_model_billpage object
-                                Bill_model_billpage bill = new Bill_model_billpage(id, billName, category, amount, dueDate, status);
+                                // Create a new Bill_model_billpage object with the color
+                                Bill_model_billpage bill = new Bill_model_billpage(id, billName, category, amount, dueDate, statusBill);
+
 
                                 // Add the bill to the list
                                 billList.add(bill);
-                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + status);
+                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill );
                             } catch (Exception e) {
                                 Log.e("FirestoreError", "Error parsing or updating bill data", e);
                             }
                         }
 
+                        // Update the adapter's allBillList with the newly loaded data
+                        billAdapter.getAllBillList().clear();
+                        billAdapter.getAllBillList().addAll(billList);
                         // Notify the adapter about the updated data
                         billAdapter.notifyDataSetChanged();
+
+                        // Log after bills are loaded
                         Log.d("FirestoreData", "Total Bills Loaded: " + billList.size());
                         recyclerView.setVisibility(View.VISIBLE);
                         noBillsText.setVisibility(View.GONE);
@@ -209,6 +224,81 @@ public class YourBillScreen extends AppCompatActivity {
                 recyclerView.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void enableSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                    @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                    int actionState, boolean isCurrentlyActive) {
+                float limitedDX = Math.min(dX, -recyclerView.getWidth() * 0.2f);
+                super.onChildDraw(c, recyclerView, viewHolder, limitedDX, dY, actionState, isCurrentlyActive);
+
+                Drawable icon = ContextCompat.getDrawable(YourBillScreen.this, R.drawable.ic_delete);
+                ColorDrawable background = new ColorDrawable(Color.BLUE);
+
+                View itemView = viewHolder.itemView;
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+
+                if (limitedDX < 0) { // Swiping to the left
+                    // Draw the limited background
+                    int backgroundLeft = itemView.getRight() + (int) limitedDX;
+                    int backgroundRight = itemView.getRight();
+
+                    background.setBounds(backgroundLeft, itemView.getTop(), backgroundRight, itemView.getBottom());
+                    background.draw(c);
+
+                    // Calculate the icon position
+                    int iconSize = dpToPx(30); // Convert 30dp to pixels
+                    int iconMargin = (itemHeight - iconSize) / 2;
+                    int iconTop = itemView.getTop() + iconMargin;
+                    int iconBottom = iconTop + iconSize;
+                    int iconLeft = itemView.getRight() - iconMargin - iconSize;
+                    int iconRight = itemView.getRight() - iconMargin;
+
+                    // Set bounds for the icon
+                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                    icon.draw(c);
+                }
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // Trigger a confirmation dialog when the swipe exceeds 50%
+                new AlertDialog.Builder(YourBillScreen.this)
+                        .setTitle("Delete Bill")
+                        .setMessage("Are you sure you want to delete this bill?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            int position = viewHolder.getAdapterPosition();
+                            // Remove the item from the adapter and notify
+                            billList.remove(position);
+                            recyclerView.getAdapter().notifyItemRemoved(position);
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                            // Reset the swipe state if the user cancels
+                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+            @Override
+            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // Set the swipe threshold to 30% (0.3f)
+                return 0.2f;
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
 

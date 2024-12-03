@@ -30,6 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -157,50 +158,99 @@ public class MainActivity extends AppCompatActivity {
             tvUsername.setText("Not logged in");
         }
     }
-        private void fetchBills() {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+    private void fetchBills() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            if (currentUser != null) {
-                String loggedUserId = currentUser.getUid();
+        if (currentUser != null) {
+            String loggedUserId = currentUser.getUid();
 
-                db.collection("users").document(loggedUserId).collection("bills")
-                        .get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                                if (!documents.isEmpty()) {
-                                    // Parse bills into the list
-                                    for (DocumentSnapshot doc : documents) {
-                                        String amount = doc.getString("amount");
-                                        String category = doc.getString("category");
-                                        String dueDate = doc.getString("due_date");
+            // Reference to the user's document
+            DocumentReference userDocRef = db.collection("users").document(loggedUserId);
 
-                                        billList.add(new Bill_model_homepage(amount, category, dueDate));
-                                    }
-                                    billAdapter.notifyDataSetChanged();
+            userDocRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    DocumentSnapshot document = task.getResult();
 
-                                    // Show RecyclerView and hide empty message
-                                    billRecyclerView.setVisibility(View.VISIBLE);
-                                    emptyTextView.setVisibility(View.GONE);
-                                } else {
-                                    // No bills found
-                                    billRecyclerView.setVisibility(View.GONE);
-                                    emptyTextView.setVisibility(View.VISIBLE);
+                    if (document.exists()) {
+                        // Get the "bills" array from the user document
+                        List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
+
+                        if (billsArray != null && !billsArray.isEmpty()) {
+                            // Initialize counters and totals
+                            double totalExpenses = 0.0;
+                            double paidBillsCount = 0.0;
+                            double unsettledBillsCount = 0.0;
+
+                            // Clear the existing bill list
+                            billList.clear();
+
+                            // Process each bill
+                            for (Map<String, Object> bill : billsArray) {
+                                String amountStr = bill.get("Amount").toString();
+                                double amount = Double.parseDouble(amountStr);
+
+                                String category = bill.get("Category").toString();
+                                String dueDate = bill.get("DueDate").toString();
+                                String status = bill.get("status").toString();
+
+                                // Add to total expenses
+                                totalExpenses += amount;
+
+                                // Increment counts based on status
+                                if ("paid".equalsIgnoreCase(status)) {
+                                    paidBillsCount += amount;
+                                } else if ("unsettled".equalsIgnoreCase(status)) {
+                                    unsettledBillsCount += amount;
                                 }
-                            } else {
-                                Log.e("BILLS_ERROR", "Error fetching bills: " + task.getException().getMessage());
-                                billRecyclerView.setVisibility(View.GONE);
-                                emptyTextView.setVisibility(View.VISIBLE);
-                            }
-                        });
-            } else {
-                Log.w("USER_WARNING", "No user is currently logged in.");
-                billRecyclerView.setVisibility(View.GONE);
-                emptyTextView.setVisibility(View.VISIBLE);
-            }
-        }
 
+                                // Add to the RecyclerView list
+                                billList.add(new Bill_model_homepage(String.valueOf(amount), category, dueDate));
+                            }
+
+                            // Notify the adapter
+                            billAdapter.notifyDataSetChanged();
+
+                            // Update TextViews
+                            expensesCost.setText(String.format(Locale.getDefault(), "%.2f", totalExpenses));
+                            expensesBillPaid.setText(String.valueOf(paidBillsCount));
+                            expensesBillunsettled.setText(String.valueOf(unsettledBillsCount));
+
+                            // Update Firestore with totals
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("total_expenses", totalExpenses);
+                            updates.put("paid_bills", paidBillsCount);
+                            updates.put("unsettled_bills", unsettledBillsCount);
+
+                            userDocRef.update(updates)
+                                    .addOnSuccessListener(aVoid -> Log.d("FirestoreUpdate", "Totals updated successfully"))
+                                    .addOnFailureListener(e -> Log.e("FirestoreUpdateError", "Error updating totals: " + e.getMessage()));
+
+                            // Show RecyclerView and hide empty message
+                            billRecyclerView.setVisibility(View.VISIBLE);
+                            emptyTextView.setVisibility(View.GONE);
+                        } else {
+                            // No bills found
+                            Log.d("FirestoreBills", "No bills found for user.");
+                            billRecyclerView.setVisibility(View.GONE);
+                            emptyTextView.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        Log.w("FirestoreUser", "User document does not exist.");
+                        billRecyclerView.setVisibility(View.GONE);
+                        emptyTextView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    Log.e("FirestoreError", "Error fetching user document: " + task.getException().getMessage());
+                    billRecyclerView.setVisibility(View.GONE);
+                    emptyTextView.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            Log.w("UserWarning", "No user is currently logged in.");
+            billRecyclerView.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+        }
     private void loadProfileImage() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -227,3 +277,8 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
     }
+
+    }
+
+}
+
