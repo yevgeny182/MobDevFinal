@@ -95,6 +95,7 @@ public class ProfileScreen extends AppCompatActivity {
         TextView tvUser = findViewById(R.id.username);
         TextView contactNumber = findViewById(R.id.contact);
         TextView address = findViewById(R.id.address);
+        TextView email = findViewById(R.id.email);
 
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
@@ -108,15 +109,17 @@ public class ProfileScreen extends AppCompatActivity {
                             if (document.exists()) {
                                 // Retrieve and set the username
                                 String loggedUserName = document.getString("FirstName") + " " + document.getString("LastName");
-                                String loggedUser = document.getString("PhoneNum");
-                                String loggedcontact = document.getString("Username");
+                                String loggedUser = document.getString("Username");
+                                String loggedcontact = document.getString("PhoneNum");
                                 String loggedaddress = document.getString("Address");
+
 
 
                                 tvUsername.setText(loggedUserName); // Update the TextView here
                                 tvUser.setText(loggedUser);
                                 contactNumber.setText(loggedcontact);
                                 address.setText(loggedaddress);
+                                email.setText(loggedUser);
 
 
                             } else {
