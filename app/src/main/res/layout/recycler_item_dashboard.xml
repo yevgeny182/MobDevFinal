@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/rowData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FDFDFD"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Amount Header -->
+        <TextView
+            android:id="@+id/tvHeaderAmountDataRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="0.00"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <!-- Category Header -->
+        <TextView
+            android:id="@+id/tvHeaderCategoryDataRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="no Category"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <!-- Due Date Header -->
+        <TextView
+            android:id="@+id/tvHeaderDueDateDataRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="none"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
