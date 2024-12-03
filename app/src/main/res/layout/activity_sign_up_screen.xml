@@ -5,18 +5,18 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".SignUpScreen"
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="12dp">
-
-
 
     <ImageButton
         android:id="@+id/imageButtonBack"
         android:layout_width="31dp"
         android:layout_height="29dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#15141F"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -26,135 +26,152 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="108dp"
-        android:layout_marginTop="36dp"
-        android:text="Sign Up Below"
-        android:textColor="#343A40"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="95dp"
+        android:text="Getting Started!"
+        android:textColor="#15141F"
         android:textSize="30dp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/firstNameInput"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="184dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/gray_button"
         android:hint="First Name"
         android:inputType="text"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <EditText
         android:id="@+id/lastNameInput"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="248dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/gray_button"
         android:hint="Last Name"
         android:inputType="text"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/firstNameInput" />
 
     <EditText
         android:id="@+id/phoneNumberInput"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="312dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/gray_button"
         android:hint="Phone Number"
         android:inputType="text"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/lastNameInput" />
 
     <EditText
         android:id="@+id/homeAddress"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="372dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/gray_button"
         android:hint="Home Address"
         android:inputType="text"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/phoneNumberInput" />
 
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="436dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/gray_button"
         android:hint="Email"
         android:inputType="text"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toBottomOf="@+id/homeAddress" />
 
     <EditText
         android:id="@+id/passwordInput"
         android:layout_width="349dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="500dp"
-        android:background="@drawable/rounded_border"
+        android:layout_height="50dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/gray_button"
         android:hint="Password"
         android:inputType="textPassword"
         android:paddingStart="12dp"
-        android:textColorHint="#666666"
+        android:textColorHint="#717171"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/emailInput" />
+
+    <TextView
+        android:id="@+id/terms"
+        android:layout_width="349dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="32dp"
+        android:text="By clicking Register, you agree to our Terms and Conditions"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordInput"
+        tools:ignore="MissingConstraints" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/submitButton"
         android:layout_width="349dp"
         android:layout_height="51dp"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="584dp"
-        android:background="@drawable/signupbutton"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/button_container"
         android:paddingStart="100dp"
         android:paddingEnd="100dp"
-        android:text="Submit"
-        android:textColor="#666666"
+        android:text="Register"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:fontFamily="@font/jetbrains_mono_extrabold"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/terms" />
 
     <ImageButton
         android:id="@+id/imageButtonEye"
         android:layout_width="44dp"
-        android:layout_height="42dp"
+        android:layout_height="50dp"
         android:layout_marginStart="332dp"
-        android:layout_marginTop="500dp"
+        android:layout_marginTop="15dp"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailInput"
         app:srcCompat="@drawable/baseline_visibility_off_24" />
 
     <TextView
         android:id="@+id/textView9"
         android:layout_width="278dp"
         android:layout_height="46dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="116dp"
-        android:text="Your personal information will be kept in our system"
-        android:textColor="#A4A4A4"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:text="Create new account at Spend Insight!"
+        android:textColor="#A2A0A8"
         android:textSize="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
 
 
