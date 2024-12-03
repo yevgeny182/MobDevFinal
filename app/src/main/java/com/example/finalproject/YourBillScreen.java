@@ -2,6 +2,10 @@ package com.example.finalproject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,11 +17,14 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -129,7 +136,7 @@ public class YourBillScreen extends AppCompatActivity {
             }
         });
 
-
+        enableSwipeToDelete();
     }
     public void loadBillsFromFirestore() {
         // Reference to the user's document in Firestore
@@ -217,6 +224,81 @@ public class YourBillScreen extends AppCompatActivity {
                 recyclerView.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void enableSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                    @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                                    int actionState, boolean isCurrentlyActive) {
+                float limitedDX = Math.min(dX, -recyclerView.getWidth() * 0.2f);
+                super.onChildDraw(c, recyclerView, viewHolder, limitedDX, dY, actionState, isCurrentlyActive);
+
+                Drawable icon = ContextCompat.getDrawable(YourBillScreen.this, R.drawable.ic_delete);
+                ColorDrawable background = new ColorDrawable(Color.BLUE);
+
+                View itemView = viewHolder.itemView;
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+
+                if (limitedDX < 0) { // Swiping to the left
+                    // Draw the limited background
+                    int backgroundLeft = itemView.getRight() + (int) limitedDX;
+                    int backgroundRight = itemView.getRight();
+
+                    background.setBounds(backgroundLeft, itemView.getTop(), backgroundRight, itemView.getBottom());
+                    background.draw(c);
+
+                    // Calculate the icon position
+                    int iconSize = dpToPx(30); // Convert 30dp to pixels
+                    int iconMargin = (itemHeight - iconSize) / 2;
+                    int iconTop = itemView.getTop() + iconMargin;
+                    int iconBottom = iconTop + iconSize;
+                    int iconLeft = itemView.getRight() - iconMargin - iconSize;
+                    int iconRight = itemView.getRight() - iconMargin;
+
+                    // Set bounds for the icon
+                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                    icon.draw(c);
+                }
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // Trigger a confirmation dialog when the swipe exceeds 50%
+                new AlertDialog.Builder(YourBillScreen.this)
+                        .setTitle("Delete Bill")
+                        .setMessage("Are you sure you want to delete this bill?")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            int position = viewHolder.getAdapterPosition();
+                            // Remove the item from the adapter and notify
+                            billList.remove(position);
+                            recyclerView.getAdapter().notifyItemRemoved(position);
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                            // Reset the swipe state if the user cancels
+                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
+            @Override
+            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+                // Set the swipe threshold to 30% (0.3f)
+                return 0.2f;
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 
 
