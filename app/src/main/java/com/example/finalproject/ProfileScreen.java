@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileScreen extends AppCompatActivity {
     ImageButton home, add, bills, profile, logout;
+
     String loggedUserId;
     private FirebaseAuth mAuth;
 
