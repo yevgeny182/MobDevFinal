@@ -128,7 +128,6 @@ public class SignUpScreen extends AppCompatActivity {
                             userInfo.put("PhoneNum", phone);
                             userInfo.put("Address", home);
                             userInfo.put("Username", username);
-                            userInfo.put("Password", password);
                             userInfo.put("total_expenses", expenses);
                             userInfo.put("paid_bills", bills);
                             userInfo.put("unsettled_bills", unsettled);
