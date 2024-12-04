@@ -260,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) return;
-
         String userId = currentUser.getUid();
         firestore.collection("users").document(userId).get()
                 .addOnCompleteListener(task -> {
