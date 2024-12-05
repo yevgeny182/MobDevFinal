@@ -155,6 +155,9 @@ public class SignUpScreen extends AppCompatActivity {
 
                         }else{
                             Toast.makeText(SignUpScreen.this, "Registration Error", Toast.LENGTH_SHORT).show();
+                            overlay.setVisibility(View.GONE);
+                            progress.setVisibility(View.GONE);
+                            submit.setEnabled(true);
                         }
                     }
             });
