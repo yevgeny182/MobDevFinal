@@ -71,7 +71,7 @@ public class ChangePasswordScreen extends AppCompatActivity {
                                 if (resetTask.isSuccessful()) {
                                     Toast.makeText(this, "Password reset email sent successfully.", Toast.LENGTH_LONG).show();
                                     Log.d("ResetPassword", "Password reset email sent to: " + email);
-                                    startActivity(new Intent(ChangePasswordScreen.this, LandingScreen.class));
+                                    startActivity(new Intent(ChangePasswordScreen.this, ChangePasswordScreenV2.class));
                                     finish();
                                 } else {
                                     Log.e("ResetPassword", "Error sending reset email: " + resetTask.getException());
