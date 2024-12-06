@@ -17,6 +17,10 @@ public class Bill_model_billpage {
         this.status = status;
     }
 
+    public String getId() {
+        return id;
+    }
+
     // Corrected getter for Billname
     public String getBillName() {
         return Billname;
@@ -36,5 +40,9 @@ public class Bill_model_billpage {
 
     public String getStatus() {
         return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

@@ -2,6 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="backgroundDelete">#FB6969</color>
+    <color name="backgroundDeleteIcon">#950000</color>
+    <color name="backgroundPaid">#9FFF91</color>
+    <color name="backgroundPaidIcon">#187A05</color>
     <color name="blue">#007BFF</color>
     <color name="paidColor">#4CAF50</color> <!-- Green -->
     <color name="unsettledColor">#F44336</color> <!-- Red -->

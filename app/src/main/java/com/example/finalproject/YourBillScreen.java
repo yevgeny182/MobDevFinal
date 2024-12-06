@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -22,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -92,16 +97,6 @@ public class YourBillScreen extends AppCompatActivity {
         noBillsText = findViewById(R.id.no_bills_text);
         searchBox = findViewById(R.id.searchView);
 
-//        billList = new ArrayList<>();
-//        billList.add(new Bill_model_billpage("1", "Electricity Bill", "Utilities", 500.65, "12/5/2024", "Unpaid"));
-//        billList.add(new Bill_model_billpage("2", "Water Bill", "Utilities", 200.0, "12/10/2024", "Paid"));
-//        billList.add(new Bill_model_billpage("3", "Shopping Bill", "Shopping", 100.0, "12/15/2024", "Unpaid"));
-//
-//        billAdapter = new BillAdapter_billpage(billList, YourBillScreen.this);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        recyclerView.setAdapter(billAdapter);
-
-
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -109,7 +104,7 @@ public class YourBillScreen extends AppCompatActivity {
         billList = new ArrayList<>();
 
         // Set up RecyclerView
-        billAdapter = new BillAdapter_billpage(billList,YourBillScreen.this);
+        billAdapter = new BillAdapter_billpage(billList, YourBillScreen.this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(billAdapter);
         loadBillsFromFirestore();
@@ -121,7 +116,7 @@ public class YourBillScreen extends AppCompatActivity {
         searchBox.setFocusable(true);          // Make it focusable
         searchBox.setFocusableInTouchMode(true); // Ensure it reacts to touch
 
-        Log.d("ForFilter", "onCreate: "+ billAdapter.getItemCount());
+        Log.d("ForFilter", "onCreate: " + billAdapter.getItemCount());
         searchBox.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -136,8 +131,9 @@ public class YourBillScreen extends AppCompatActivity {
             }
         });
 
-        enableSwipeToDelete();
+        enableSwipesLeftOrRight();
     }
+
     public void loadBillsFromFirestore() {
         // Reference to the user's document in Firestore
         DocumentReference billsDocRef = db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -185,7 +181,7 @@ public class YourBillScreen extends AppCompatActivity {
 
                                 // Add the bill to the list
                                 billList.add(bill);
-                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill );
+                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill);
                             } catch (Exception e) {
                                 Log.e("FirestoreError", "Error parsing or updating bill data", e);
                             }
@@ -226,80 +222,182 @@ public class YourBillScreen extends AppCompatActivity {
         });
     }
 
-    private void enableSwipeToDelete() {
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+    private void enableSwipesLeftOrRight() {
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                                    @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
-                                    int actionState, boolean isCurrentlyActive) {
-                float limitedDX = Math.min(dX, -recyclerView.getWidth() * 0.2f);
-                super.onChildDraw(c, recyclerView, viewHolder, limitedDX, dY, actionState, isCurrentlyActive);
-
-                Drawable icon = ContextCompat.getDrawable(YourBillScreen.this, R.drawable.ic_delete);
-                ColorDrawable background = new ColorDrawable(Color.BLUE);
-
-                View itemView = viewHolder.itemView;
-                int itemHeight = itemView.getBottom() - itemView.getTop();
-
-                if (limitedDX < 0) { // Swiping to the left
-                    // Draw the limited background
-                    int backgroundLeft = itemView.getRight() + (int) limitedDX;
-                    int backgroundRight = itemView.getRight();
-
-                    background.setBounds(backgroundLeft, itemView.getTop(), backgroundRight, itemView.getBottom());
-                    background.draw(c);
-
-                    // Calculate the icon position
-                    int iconSize = dpToPx(30); // Convert 30dp to pixels
-                    int iconMargin = (itemHeight - iconSize) / 2;
-                    int iconTop = itemView.getTop() + iconMargin;
-                    int iconBottom = iconTop + iconSize;
-                    int iconLeft = itemView.getRight() - iconMargin - iconSize;
-                    int iconRight = itemView.getRight() - iconMargin;
-
-                    // Set bounds for the icon
-                    icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
-                    icon.draw(c);
-                }
+                return false; // No move functionality needed
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // Trigger a confirmation dialog when the swipe exceeds 50%
-                new AlertDialog.Builder(YourBillScreen.this)
-                        .setTitle("Delete Bill")
-                        .setMessage("Are you sure you want to delete this bill?")
-                        .setPositiveButton("Delete", (dialog, which) -> {
-                            int position = viewHolder.getAdapterPosition();
-                            // Remove the item from the adapter and notify
-                            billList.remove(position);
-                            recyclerView.getAdapter().notifyItemRemoved(position);
-                        })
-                        .setNegativeButton("Cancel", (dialog, which) -> {
-                            // Reset the swipe state if the user cancels
-                            recyclerView.getAdapter().notifyItemChanged(viewHolder.getAdapterPosition());
-                        })
-                        .setCancelable(false)
-                        .show();
+                int position = viewHolder.getAdapterPosition();
+                if (direction == ItemTouchHelper.LEFT) {
+                    new AlertDialog.Builder(YourBillScreen.this)
+                            .setTitle("Delete Item")
+                            .setMessage("Are you sure you want to delete this item?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                deleteItem(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                billAdapter.notifyItemChanged(position);
+                            })
+                            .show();
+                } else if (direction == ItemTouchHelper.RIGHT) {
+                    new AlertDialog.Builder(YourBillScreen.this)
+                            .setTitle("Confirm Payment Status")
+                            .setMessage("Please confirm that this bill has been paid. This action is final.")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                markAsPaid(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                billAdapter.notifyItemChanged(position);
+                            })
+                            .show();
+                }
             }
+
             @Override
-            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
-                // Set the swipe threshold to 30% (0.3f)
-                return 0.2f;
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder,
+                                    float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                View itemView = viewHolder.itemView;
+                Paint paint = new Paint();
+                float maxSwipeDistance = 300;
+
+                float newDX = Math.min(Math.max(dX, -maxSwipeDistance), maxSwipeDistance);
+                if (dX > 0) {
+                    int paidColor = ContextCompat.getColor(YourBillScreen.this, R.color.backgroundPaid); // Replace with your color resource
+                    paint.setColor(paidColor);
+                    float cornerRadius = 12 * recyclerView.getContext().getResources().getDisplayMetrics().density; // Convert 12dp to pixels
+                    RectF rectF = new RectF(
+                            itemView.getLeft(),
+                            itemView.getTop(),
+                            itemView.getLeft() + dX, // Use dX for dynamic width
+                            itemView.getBottom()
+                    );
+                    c.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
+                    Drawable checkIcon = ContextCompat.getDrawable(YourBillScreen.this, R.drawable.check_circle_24px);
+                    if (checkIcon != null) {
+                        DrawableCompat.setTint(checkIcon, ContextCompat.getColor(YourBillScreen.this, R.color.backgroundPaidIcon)); // Tint color (e.g., white)
+                        int iconMargin = (itemView.getHeight() - checkIcon.getIntrinsicHeight()) / 2;
+                        int iconTop = itemView.getTop() + iconMargin;
+                        int iconBottom = iconTop + checkIcon.getIntrinsicHeight();
+                        int iconLeft = itemView.getLeft() + 50;
+                        int iconRight = iconLeft + checkIcon.getIntrinsicWidth();
+                        checkIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                        checkIcon.draw(c);
+                    }
+                } else if (dX < 0) {
+                    int deleteColor = ContextCompat.getColor(YourBillScreen.this, R.color.backgroundDelete); // Replace with your color resource
+                    paint.setColor(deleteColor);
+                    // Draw the rounded rectangle
+                    float cornerRadius = 12 * recyclerView.getContext().getResources().getDisplayMetrics().density; // Convert 12dp to pixels
+                    RectF rectF = new RectF(
+                            itemView.getRight() + dX, // Use dX for dynamic width
+                            itemView.getTop(),
+                            itemView.getRight(),
+                            itemView.getBottom()
+                    );
+                    c.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
+                    Drawable trashIcon = ContextCompat.getDrawable(YourBillScreen.this, R.drawable.delete_24px);
+                    if (trashIcon != null) {
+                        DrawableCompat.setTint(trashIcon, ContextCompat.getColor(YourBillScreen.this, R.color.backgroundDeleteIcon));
+                        int iconMargin = (itemView.getHeight() - trashIcon.getIntrinsicHeight()) / 2;
+                        int iconTop = itemView.getTop() + iconMargin;
+                        int iconBottom = iconTop + trashIcon.getIntrinsicHeight();
+                        int iconRight = itemView.getRight() - 50;
+                        int iconLeft = iconRight - trashIcon.getIntrinsicWidth();
+                        trashIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                        trashIcon.draw(c);
+                    }
+                }
+
+                super.onChildDraw(c, recyclerView, viewHolder, newDX, dY, actionState, isCurrentlyActive);
             }
         };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
-    private int dpToPx(int dp) {
-        return Math.round(dp * getResources().getDisplayMetrics().density);
+
+    private void markAsPaid(int position) {
+        // Update the item's status in your dataset
+        Bill_model_billpage item = billList.get(position);
+        item.setStatus("Paid");
+        billAdapter.notifyItemChanged(position);
+        updateStatusToPaidFromFirestore(position);
     }
+
+//    Deletion
+public void deleteItem(int position) {
+    if (position >= 0 && position < billList.size()) {
+        // Delete the item from Firestore using the position
+        deleteFromFirestore(position);
+
+        // Remove the item locally
+        billList.remove(position);
+
+        // Notify the adapter about the removed item
+        billAdapter.notifyItemRemoved(position);
+    }
+}
+
+private void updateStatusToPaidFromFirestore(int position){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        DocumentReference userDocs = db.collection("users").document(userID);
+
+        userDocs.get().addOnSuccessListener(documentSnapshot -> {
+            if(documentSnapshot.exists()){
+                List<Map<String, Object>> billsArray = (List<Map<String, Object>>) documentSnapshot.get("bills");
+
+                if (billsArray != null && position < billsArray.size()){
+                    Map<String, Object> bill = billsArray.get(position);
+                    bill.put("status","paid");
+
+                    userDocs.update("bills", billsArray)
+                            .addOnSuccessListener(aVoid -> Log.d("Firestore", "Status updated to Paid!"))
+                            .addOnFailureListener(e -> Log.e("FirestoreError", "Error updating status: ", e));
+                }
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to update!!", Toast.LENGTH_SHORT).show();
+            Log.e("FirestoreError", "Error fetching document: ", e);
+        });
+
+}
+    private void deleteFromFirestore(int position) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Reference the user's document
+        DocumentReference userDocRef = db.collection("users").document(userId);
+
+        userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Fetch the bills array
+                List<Map<String, Object>> billsArray = (List<Map<String, Object>>) documentSnapshot.get("bills");
+                if (billsArray != null && position < billsArray.size()) {
+                    // Remove the item at the specified position
+                    billsArray.remove(position);
+
+                    // Update Firestore with the modified array
+                    userDocRef.update("bills", billsArray)
+                            .addOnSuccessListener(aVoid -> Log.d("Firestore", "Bill deleted successfully!"))
+                            .addOnFailureListener(e -> Log.e("FirestoreError", "Error deleting bill: ", e));
+
+                }
+                if(billsArray.size() == 0){
+                    noBillsText.setText("No Bills Existed");
+                    noBillsText.setVisibility(View.VISIBLE);
+                }
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("FirestoreError", "Error fetching document: ", e);
+        });
+    }
+
 
 
 }

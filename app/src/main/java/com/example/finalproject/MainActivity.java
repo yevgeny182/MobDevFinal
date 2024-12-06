@@ -195,7 +195,9 @@ public class MainActivity extends AppCompatActivity {
                                 String status = bill.get("status").toString();
 
                                 // Add to total expenses
-                                totalExpenses += amount;
+                               if("unpaid".equalsIgnoreCase(status) || "unsettled".equalsIgnoreCase(status)){
+                                   totalExpenses += amount;
+                               }
 
                                 // Increment counts based on status
                                 if ("paid".equalsIgnoreCase(status)) {
