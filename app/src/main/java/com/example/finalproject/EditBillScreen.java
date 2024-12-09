@@ -1,8 +1,10 @@
 package com.example.finalproject;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -12,18 +14,40 @@ import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EditBillScreen extends AppCompatActivity {
     ImageButton home, bills, profile, add;
     EditText editBillName, editAmount, editDueDate;
     Spinner editCategorySpinner;
-    Button saveButton, paidButton;
+    Button saveButton, backButton;
 
+    // Firebase Firestore instance
+    private FirebaseFirestore db;
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_bill_screen);
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+
+        //bottom navigation
+        add = findViewById(R.id.addButton);
+        bills = findViewById(R.id.billButton);
+        profile = findViewById(R.id.profileButton);
+        home = findViewById(R.id.homeButton);
 
         // Initialize views
         editBillName = findViewById(R.id.editBillName);
@@ -31,7 +55,23 @@ public class EditBillScreen extends AppCompatActivity {
         editAmount = findViewById(R.id.editAmount);
         editDueDate = findViewById(R.id.editDueDate);
         saveButton = findViewById(R.id.saveButton);
-        paidButton = findViewById(R.id.paidButton);
+        backButton = findViewById(R.id.cancelButton);
+
+        // Retrieve data from Intent
+        Intent retrieveData = getIntent();
+        String billId1 = retrieveData.getStringExtra("bill_id");
+        String billName1 = retrieveData.getStringExtra("bill_name");
+        double billAmount1 = retrieveData.getDoubleExtra("bill_amount", 0.0);
+        String billDueDate1 = retrieveData.getStringExtra("bill_due_date");
+        String billCategory1 = retrieveData.getStringExtra("bill_category");
+
+        editBillName.setText(billName1);
+        editAmount.setText(String.valueOf(billAmount1));
+        editDueDate.setText(billDueDate1);
+
+        if (billCategory1 != null) {
+            setSpinnerValue(editCategorySpinner, billCategory1);
+        }
 
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,34 +113,62 @@ public class EditBillScreen extends AppCompatActivity {
             datePickerDialog.show();
         });
 
-        // Save button functionality
         saveButton.setOnClickListener(v -> {
-            String billName = editBillName.getText().toString().trim();
-            String category = editCategorySpinner.getSelectedItem().toString().trim();
-            String amount = editAmount.getText().toString().trim();
-            String dueDate = editDueDate.getText().toString().trim();
+            String updatedName = editBillName.getText().toString().trim();
+            String updatedCategory = editCategorySpinner.getSelectedItem().toString().trim();
+            String updatedAmount = editAmount.getText().toString().trim();
+            String updatedDueDate = editDueDate.getText().toString().trim();
 
-            // Here, you would typically save the data to a database or shared preferences
-            // Example: DatabaseHelper.updateBill(billId, billName, category, amount, dueDate);
+            String billId = getIntent().getStringExtra("bill_id");
+            if (billId == null) {
+                Log.e("EditBillScreen", "bill_id is null");
+                return;
+            }
 
-            // Show success message or navigate back
-            Intent intent = new Intent();
-            intent.putExtra("result", "Bill Updated Successfully");
-            setResult(RESULT_OK, intent);
-            finish(); // Go back to the previous screen
+            try {
+                int index = Integer.parseInt(billId);
+
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                DocumentReference userDocRef = db.collection("users").document(userId);
+
+                userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<Map<String, Object>> billsArray = (List<Map<String, Object>>) documentSnapshot.get("bills");
+                        if (billsArray != null && index >= 0 && index < billsArray.size()) {
+                            Map<String, Object> billToUpdate = billsArray.get(index);
+                            billToUpdate.put("BillName", updatedName);
+                            billToUpdate.put("Category", updatedCategory);
+                            billToUpdate.put("Amount", Double.parseDouble(updatedAmount));
+                            billToUpdate.put("DueDate", updatedDueDate);
+
+                            userDocRef.update("bills", billsArray)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Intent intent = new Intent(EditBillScreen.this, YourBillScreen.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
+                                        finish(); // Finish the current activity
+                                    })
+                                    .addOnFailureListener(e -> Log.e("FirestoreError", "Error updating bill: ", e));
+                        } else {
+                            Log.e("EditBillScreen", "Invalid index: " + index);
+                        }
+                    }
+                }).addOnFailureListener(e -> Log.e("FirestoreError", "Error fetching document: ", e));
+            } catch (NumberFormatException e) {
+                Log.e("EditBillScreen", "Invalid bill_id: " + billId, e);
+            }
         });
 
-        // Paid button functionality
-        paidButton.setOnClickListener(v -> {
-            // Mark the bill as paid
-            // Example: DatabaseHelper.markBillAsPaid(billId);
 
-            // Optionally navigate or show a success message
-            Intent intent = new Intent();
-            intent.putExtra("result", "Bill Marked as Paid");
-            setResult(RESULT_OK, intent);
-            finish();
+
+        backButton.setOnClickListener(v -> {
+            // Navigate back to YourBillScreen
+            Intent intent = new Intent(EditBillScreen.this, YourBillScreen.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Ensure it clears the stack
+            startActivity(intent);
+            finish(); // Finish the current activity
         });
+
     }
 
     // Handle toolbar back button click
@@ -111,5 +179,14 @@ public class EditBillScreen extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    // Helper method to set Spinner value
+    private void setSpinnerValue(Spinner spinner, String value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                break;
+            }
+        }
     }
 }
