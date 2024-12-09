@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,17 +19,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billpage.BillViewHolder> implements Filterable {
+
+    // Define an interface for click listener
+    public interface OnItemClickListener {
+        void onItemClick(Bill_model_billpage bill);
+    }
+
     private List<Bill_model_billpage> billList;
     private List<Bill_model_billpage> allBillList;
     private Context context;
+    private OnItemClickListener listener; // Add listener variable
 
-    public BillAdapter_billpage(List<Bill_model_billpage> billList , Context context) {
+    // Add listener parameter to the constructor
+    public BillAdapter_billpage(List<Bill_model_billpage> billList, Context context, OnItemClickListener listener) {
         this.billList = billList;
         this.context = context;
+        this.listener = listener; // Assign the listener
         this.allBillList = new ArrayList<>(billList);
-
     }
-
 
     @NonNull
     @Override
@@ -51,24 +59,27 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
         if (bill.getStatus().equalsIgnoreCase("paid")) {
             holder.statusLabel.setText("Paid");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.paidColor));
-        } else if(bill.getStatus().equalsIgnoreCase("unsettled")){
+        } else if (bill.getStatus().equalsIgnoreCase("unsettled")) {
             holder.statusLabel.setText("Unsettled");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.unsettledColor));
-        }else{
-            holder.statusLabel.setText("unpaid");
+        } else {
+            holder.statusLabel.setText("Unpaid");
             holder.statusLabel.setTextColor(ContextCompat.getColor(context, R.color.unpaid));
         }
 
-        // Set up click listener for the card
+        // Set up the click listener for the card
         holder.itemView.setOnClickListener(v -> {
-            // Show a Toast message when an item is clicked
-            Toast.makeText(context, "Clicked on: " + bill.getBillName(), Toast.LENGTH_SHORT).show();
+            if (listener != null) {
+                listener.onItemClick(bill); // Pass the clicked bill to the listener
+            }
         });
     }
+
     @Override
     public int getItemCount() {
         return billList.size();
     }
+
     public List<Bill_model_billpage> getAllBillList() {
         return allBillList;
     }
@@ -119,6 +130,7 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
             }
         };
     }
+
     static class BillViewHolder extends RecyclerView.ViewHolder {
 
         TextView billName, billCategory, billAmount, billDueDate, statusLabel;
@@ -133,3 +145,4 @@ public class BillAdapter_billpage extends RecyclerView.Adapter<BillAdapter_billp
         }
     }
 }
+

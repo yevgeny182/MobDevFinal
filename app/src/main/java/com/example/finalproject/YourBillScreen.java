@@ -104,7 +104,19 @@ public class YourBillScreen extends AppCompatActivity {
         billList = new ArrayList<>();
 
         // Set up RecyclerView
-        billAdapter = new BillAdapter_billpage(billList, YourBillScreen.this);
+        billAdapter = new BillAdapter_billpage(billList, YourBillScreen.this,bill -> {
+            // Handle item click here
+//            Toast.makeText(this, "YOU CLICKED"+ bill.getId(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, EditBillScreen.class);
+            intent.putExtra("bill_id", bill.getId());
+            intent.putExtra("bill_name", bill.getBillName());
+            intent.putExtra("bill_category", bill.getCategory());
+            intent.putExtra("bill_amount", bill.getAmount());
+            intent.putExtra("bill_due_date", bill.getDueDate());
+            intent.putExtra("bill_status", bill.getStatus());
+            Log.d("YourBillScreen", "Navigating to EditBillScreen with data: " + bill.getBillName());
+            startActivity(intent);
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(billAdapter);
         loadBillsFromFirestore();
@@ -154,10 +166,11 @@ public class YourBillScreen extends AppCompatActivity {
 
                     if (billsArray != null && !billsArray.isEmpty()) {
                         // Process each bill in the array
-                        for (Map<String, Object> billMap : billsArray) {
+                        for (int index = 0; index < billsArray.size(); index++) {
+                            Map<String, Object> billMap = billsArray.get(index);
+
                             try {
                                 // Safely retrieve each field with default values
-                                String id = billMap.containsKey("id") ? billMap.get("id").toString() : "Unknown";
                                 String billName = billMap.containsKey("BillName") ? billMap.get("BillName").toString() : "No Name";
                                 String category = billMap.containsKey("Category") ? billMap.get("Category").toString() : "Uncategorized";
                                 double amount = billMap.containsKey("Amount") ? Double.parseDouble(billMap.get("Amount").toString()) : 0.0;
@@ -175,9 +188,8 @@ public class YourBillScreen extends AppCompatActivity {
                                     statusBill = "unsettled"; // Update local variable
                                 }
 
-                                // Create a new Bill_model_billpage object with the color
-                                Bill_model_billpage bill = new Bill_model_billpage(id, billName, category, amount, dueDate, statusBill);
-
+                                // Create a new Bill_model_billpage object with the index
+                                Bill_model_billpage bill = new Bill_model_billpage(String.valueOf(index), billName, category, amount, dueDate, statusBill);
 
                                 // Add the bill to the list
                                 billList.add(bill);
