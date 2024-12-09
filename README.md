@@ -32,7 +32,7 @@ The project was designed, developed, and completed within this time frame.
 1. **Add Bills**: Input your recurring bills (e.g., rent, utilities, subscriptions).
 2. **Set Due Dates**: Select the due date for each bill.
 3. **Track Expenses**: View your total monthly expenses at a glance.
-4. **Get Notified**: Stay on top of payments with timely reminders.
+4. **Get Notified**: Stay on top of payments with timely reminders. (not available at the moment)
 
 ---
 
