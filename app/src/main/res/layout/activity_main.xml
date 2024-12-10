@@ -65,8 +65,8 @@
                     android:id="@+id/profile_image"
                     android:layout_width="57dp"
                     android:layout_height="59dp"
-                    android:src="@drawable/avatar"
-                    app:civ_border_color="#FF000000"
+                    android:src="@drawable/user_avatar"
+                    app:civ_border_color="#007BFF"
                     app:civ_border_width="2dp" />
 
                 <TextView
@@ -359,7 +359,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_home_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/addButton"
@@ -370,7 +371,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_add_circle_outline_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/billButton"
@@ -381,7 +383,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_content_paste_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/profileButton"
@@ -392,7 +395,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/baseline_person_outline_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
