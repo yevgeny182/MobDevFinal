@@ -128,9 +128,9 @@ public class SignUpScreen extends AppCompatActivity {
                             userInfo.put("PhoneNum", phone);
                             userInfo.put("Address", home);
                             userInfo.put("Username", username);
-                            userInfo.put("total_expenses", expenses);
-                            userInfo.put("paid_bills", bills);
-                            userInfo.put("unsettled_bills", unsettled);
+//                            userInfo.put("total_expenses", expenses);
+//                            userInfo.put("paid_bills", bills);
+//                            userInfo.put("unsettled_bills", unsettled);
                             userInfoDB.collection("users").document(userID)
                                 .set(userInfo)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -154,7 +154,7 @@ public class SignUpScreen extends AppCompatActivity {
                                         });
 
                         }else{
-                            Toast.makeText(SignUpScreen.this, "Registration Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpScreen.this, "Email existed already registered, Please try other email address", Toast.LENGTH_SHORT).show();
                             overlay.setVisibility(View.GONE);
                             progress.setVisibility(View.GONE);
                             submit.setEnabled(true);

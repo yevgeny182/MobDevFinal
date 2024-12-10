@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +28,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -129,20 +134,20 @@ public class MainActivity extends AppCompatActivity {
                                 String loggedUserName = document.getString("FirstName") + " " + document.getString("LastName");
                                 tvUsername.setText(loggedUserName); // Update the TextView here
 
-                                // Safely fetch the fields, or use default values if they don't exist
-                                Long totalBillCost = document.contains("total_expenses") ? document.getLong("total_expenses") : 0L;
-                                Long paidBillCost = document.contains("paid_bills") ? document.getLong("paid_bills") : 0L;
-                                Long unsettledBillCost = document.contains("unsettled_bills") ? document.getLong("unsettled_bills") : 0L;
-
-// Convert to int if needed
-                                int totalBillCostInt = totalBillCost.intValue();
-                                int paidBillCostInt = paidBillCost.intValue();
-                                int unsettledBillCostInt = unsettledBillCost.intValue();
-
-// Update the TextViews
-                                expensesCost.setText(String.valueOf(totalBillCostInt));
-                                expensesBillPaid.setText(String.valueOf(paidBillCostInt));
-                                expensesBillunsettled.setText(String.valueOf(unsettledBillCostInt));
+//                                // Safely fetch the fields, or use default values if they don't exist
+//                                Long totalBillCost = document.contains("total_expenses") ? document.getLong("total_expenses") : 0L;
+//                                Long paidBillCost = document.contains("paid_bills") ? document.getLong("paid_bills") : 0L;
+//                                Long unsettledBillCost = document.contains("unsettled_bills") ? document.getLong("unsettled_bills") : 0L;
+//
+//// Convert to int if needed
+//                                int totalBillCostInt = totalBillCost.intValue();
+//                                int paidBillCostInt = paidBillCost.intValue();
+//                                int unsettledBillCostInt = unsettledBillCost.intValue();
+//
+//// Update the TextViews
+//                                expensesCost.setText(String.valueOf(totalBillCostInt));
+//                                expensesBillPaid.setText(String.valueOf(paidBillCostInt));
+//                                expensesBillunsettled.setText(String.valueOf(unsettledBillCostInt));
 
                             } else {
                                 Log.w("USER_DATA", "No user data found.");
@@ -177,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                         List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
 
                         if (billsArray != null && !billsArray.isEmpty()) {
+
                             // Initialize counters and totals
                             double totalExpenses = 0.0;
                             double paidBillsCount = 0.0;
@@ -186,6 +192,15 @@ public class MainActivity extends AppCompatActivity {
                             billList.clear();
 
                             // Process each bill
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                            Calendar currentCalendar = Calendar.getInstance();
+                            currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                            currentCalendar.set(Calendar.MINUTE, 0);
+                            currentCalendar.set(Calendar.SECOND, 0);
+                            currentCalendar.set(Calendar.MILLISECOND, 0);
+
+                            boolean isUpdated = false;
+
                             for (Map<String, Object> bill : billsArray) {
                                 String amountStr = bill.get("Amount").toString();
                                 double amount = Double.parseDouble(amountStr);
@@ -195,19 +210,50 @@ public class MainActivity extends AppCompatActivity {
                                 String status = bill.get("status").toString();
 
                                 // Add to total expenses
-                               if("unpaid".equalsIgnoreCase(status) || "unsettled".equalsIgnoreCase(status)){
-                                   totalExpenses += amount;
-                               }
+                                if ("unpaid".equalsIgnoreCase(status) || "unsettled".equalsIgnoreCase(status)) {
+                                    totalExpenses += amount;
+                                }
+
+                                try {
+                                    Date parsedDueDate = dateFormat.parse(dueDate);
+                                    Calendar dueDateCalendar = Calendar.getInstance();
+
+                                    if (parsedDueDate != null) {
+                                        dueDateCalendar.setTime(parsedDueDate);
+                                        dueDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                                        dueDateCalendar.set(Calendar.MINUTE, 0);
+                                        dueDateCalendar.set(Calendar.SECOND, 0);
+                                        dueDateCalendar.set(Calendar.MILLISECOND, 0);
+
+                                        // Set status based on date comparison
+                                        if (dueDateCalendar.before(currentCalendar) && !"paid".equalsIgnoreCase(status)) {
+                                            bill.put("status", "unsettled");
+                                            isUpdated = true;
+                                        }
+                                    }
+                                } catch (ParseException e) {
+                                    // Log parsing errors to identify problematic data
+                                    Toast.makeText(this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                                }
 
                                 // Increment counts based on status
                                 if ("paid".equalsIgnoreCase(status)) {
                                     paidBillsCount += amount;
+                                    Log.d("paidBillTotal", "Bills: " + paidBillsCount);
                                 } else if ("unsettled".equalsIgnoreCase(status)) {
                                     unsettledBillsCount += amount;
+                                    Log.d("BillTotal", "Bills: " + unsettledBillsCount);
                                 }
 
                                 // Add to the RecyclerView list
                                 billList.add(new Bill_model_homepage(String.valueOf(amount), category, dueDate));
+                            }
+
+                            // Update Firestore if any changes were made
+                            if (isUpdated) {
+                                userDocRef.update("bills", billsArray)
+                                        .addOnSuccessListener(aVoid -> Log.d("FirestoreUpdate", "Bills updated successfully"))
+                                        .addOnFailureListener(e -> Log.e("FirestoreUpdateError", "Error updating bills: " + e.getMessage()));
                             }
 
                             // Notify the adapter
@@ -218,15 +264,15 @@ public class MainActivity extends AppCompatActivity {
                             expensesBillPaid.setText(String.valueOf(paidBillsCount));
                             expensesBillunsettled.setText(String.valueOf(unsettledBillsCount));
 
-                            // Update Firestore with totals
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("total_expenses", totalExpenses);
-                            updates.put("paid_bills", paidBillsCount);
-                            updates.put("unsettled_bills", unsettledBillsCount);
-
-                            userDocRef.update(updates)
-                                    .addOnSuccessListener(aVoid -> Log.d("FirestoreUpdate", "Totals updated successfully"))
-                                    .addOnFailureListener(e -> Log.e("FirestoreUpdateError", "Error updating totals: " + e.getMessage()));
+                            // Commented out updating Firestore totals directly for now
+//                        Map<String, Object> updates = new HashMap<>();
+//                        updates.put("total_expenses", totalExpenses);
+//                        updates.put("paid_bills", paidBillsCount);
+//                        updates.put("unsettled_bills", unsettledBillsCount);
+//
+//                        userDocRef.update(updates)
+//                                .addOnSuccessListener(aVoid -> Log.d("FirestoreUpdate", "Totals updated successfully"))
+//                                .addOnFailureListener(e -> Log.e("FirestoreUpdateError", "Error updating totals: " + e.getMessage()));
 
                             // Show RecyclerView and hide empty message
                             billRecyclerView.setVisibility(View.VISIBLE);
@@ -243,20 +289,21 @@ public class MainActivity extends AppCompatActivity {
                         emptyTextView.setVisibility(View.VISIBLE);
                     }
                 } else {
+                    // Log Firestore fetch error
                     Log.e("FirestoreError", "Error fetching user document: " + task.getException().getMessage());
                     billRecyclerView.setVisibility(View.GONE);
                     emptyTextView.setVisibility(View.VISIBLE);
                 }
             });
         } else {
+            // Log missing user session
             Log.w("UserWarning", "No user is currently logged in.");
             billRecyclerView.setVisibility(View.GONE);
             emptyTextView.setVisibility(View.VISIBLE);
         }
-
-
-
     }
+
+
 
     private void loadProfileImage() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();

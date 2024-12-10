@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -18,10 +19,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class EditBillScreen extends AppCompatActivity {
@@ -136,11 +140,29 @@ public class EditBillScreen extends AppCompatActivity {
                         List<Map<String, Object>> billsArray = (List<Map<String, Object>>) documentSnapshot.get("bills");
                         if (billsArray != null && index >= 0 && index < billsArray.size()) {
                             Map<String, Object> billToUpdate = billsArray.get(index);
+
+                            // Update bill fields
                             billToUpdate.put("BillName", updatedName);
                             billToUpdate.put("Category", updatedCategory);
                             billToUpdate.put("Amount", Double.parseDouble(updatedAmount));
                             billToUpdate.put("DueDate", updatedDueDate);
 
+                            // Check if the updated due date is in the past
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                            try {
+                                Date parsedDueDate = dateFormat.parse(updatedDueDate);
+                                Date currentDate = new Date(); // Current date
+
+                                if (parsedDueDate != null && parsedDueDate.before(currentDate)) {
+                                    billToUpdate.put("status", "unsettled"); // Set status to overdue
+                                } else {
+                                    billToUpdate.put("status", "unpaid"); // Reset to unpaid if not past due
+                                }
+                            } catch (ParseException e) {
+                                Log.e("EditBillScreen", "Error parsing DueDate: " + updatedDueDate + e);
+                            }
+
+                            // Update Firestore
                             userDocRef.update("bills", billsArray)
                                     .addOnSuccessListener(aVoid -> {
                                         Intent intent = new Intent(EditBillScreen.this, YourBillScreen.class);
@@ -158,6 +180,7 @@ public class EditBillScreen extends AppCompatActivity {
                 Log.e("EditBillScreen", "Invalid bill_id: " + billId, e);
             }
         });
+
 
 
 
