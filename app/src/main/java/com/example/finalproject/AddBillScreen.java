@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -28,8 +29,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class AddBillScreen extends AppCompatActivity {
@@ -150,45 +155,78 @@ public class AddBillScreen extends AppCompatActivity {
             return;
         }
 
-        String userID = userInfoDB.getCurrentUser().getUid();
-        Map<String, Object> billInfo = new HashMap<>();
-        billInfo.put("BillName", billName);
-        billInfo.put("Category", category);
-        billInfo.put("Amount", amount);
-        billInfo.put("DueDate", dueDate);
-        billInfo.put("status", "unpaid");
+        // Parse the due date to check if it's in the past
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+        try {
+            Date parsedDueDate = dateFormat.parse(dueDate);
+            Calendar currentCalendar = Calendar.getInstance();
+            Calendar dueDateCalendar = Calendar.getInstance();
 
-        // Step 1: Add the new bill to the "bills" array
-        addBill.collection("users").document(userID)
-                .update("bills", FieldValue.arrayUnion(billInfo))
-                .addOnSuccessListener(aVoid -> {
-                    // Step 2: Fetch the current total_expenses and update it with the new bill amount
-                    addBill.collection("users").document(userID)
-                            .get()
-                            .addOnSuccessListener(documentSnapshot -> {
-                                if (documentSnapshot.exists()) {
-                                    // Get the current total_expenses value
-                                    Double currentTotalExpenses = documentSnapshot.getDouble("total_expenses");
-                                    if (currentTotalExpenses == null) {
-                                        currentTotalExpenses = 0.0;
+            if (parsedDueDate != null) {
+                dueDateCalendar.setTime(parsedDueDate);
+
+                // Reset the time to compare only the dates (ignore time components)
+                currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                currentCalendar.set(Calendar.MINUTE, 0);
+                currentCalendar.set(Calendar.SECOND, 0);
+                currentCalendar.set(Calendar.MILLISECOND, 0);
+
+                dueDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                dueDateCalendar.set(Calendar.MINUTE, 0);
+                dueDateCalendar.set(Calendar.SECOND, 0);
+                dueDateCalendar.set(Calendar.MILLISECOND, 0);
+            }
+
+            // Set status based on date comparison
+            String status = parsedDueDate != null && dueDateCalendar.before(currentCalendar) ? "unsettled" : "unpaid";
+
+            String userID = userInfoDB.getCurrentUser().getUid();
+            Map<String, Object> billInfo = new HashMap<>();
+            billInfo.put("BillName", billName);
+            billInfo.put("Category", category);
+            billInfo.put("Amount", amount);
+            billInfo.put("DueDate", dueDate);
+            billInfo.put("status", status);
+
+            // Step 1: Add the new bill to the "bills" array
+            addBill.collection("users").document(userID)
+                    .update("bills", FieldValue.arrayUnion(billInfo))
+                    .addOnSuccessListener(aVoid -> {
+                        // Step 2: Fetch the current total_expenses and update it with the new bill amount
+                        addBill.collection("users").document(userID)
+                                .get()
+                                .addOnSuccessListener(documentSnapshot -> {
+                                    if (documentSnapshot.exists()) {
+//                                        // Get the current total_expenses value
+//                                        Double currentTotalExpenses = documentSnapshot.getDouble("total_expenses");
+//                                        if (currentTotalExpenses == null) {
+//                                            currentTotalExpenses = 0.0;
+//                                        }
+//
+//                                        // Update the total_expenses by adding the new bill amount
+//                                        double newTotalExpenses = currentTotalExpenses + amount;
+//
+//                                        // Update the total_expenses field in Firestore
+//                                        addBill.collection("users").document(userID)
+//                                                .update("total_expenses", newTotalExpenses)
+//                                                .addOnSuccessListener(unused ->
+//                                                        Toast.makeText(AddBillScreen.this, "Bill Added and Total Expenses Updated!", Toast.LENGTH_SHORT).show())
+//                                                .addOnFailureListener(e ->
+//                                                        Toast.makeText(AddBillScreen.this, "Error updating total expenses: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                        Toast toast = Toast.makeText(AddBillScreen.this, "Bill Added!", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 10); // Top position with 100px margin
+                                        toast.show();
+
                                     }
-
-                                    // Update the total_expenses by adding the new bill amount
-                                    double newTotalExpenses = currentTotalExpenses + amount;
-
-                                    // Update the total_expenses field in Firestore
-                                    addBill.collection("users").document(userID)
-                                            .update("total_expenses", newTotalExpenses)
-                                            .addOnSuccessListener(unused ->
-                                                    Toast.makeText(AddBillScreen.this, "Bill Added and Total Expenses Updated!", Toast.LENGTH_SHORT).show())
-                                            .addOnFailureListener(e ->
-                                                    Toast.makeText(AddBillScreen.this, "Error updating total expenses: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                                }
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(AddBillScreen.this, "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(AddBillScreen.this, "Error adding bill: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(AddBillScreen.this, "Error fetching user data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(AddBillScreen.this, "Error adding bill: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        } catch (ParseException e) {
+            Toast.makeText(this, "Invalid date format. Please use MM/dd/yyyy.", Toast.LENGTH_SHORT).show();
+        }
     }
+
 }

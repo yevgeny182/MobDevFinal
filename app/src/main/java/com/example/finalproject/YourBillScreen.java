@@ -106,16 +106,22 @@ public class YourBillScreen extends AppCompatActivity {
         // Set up RecyclerView
         billAdapter = new BillAdapter_billpage(billList, YourBillScreen.this,bill -> {
             // Handle item click here
-//            Toast.makeText(this, "YOU CLICKED"+ bill.getId(), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, EditBillScreen.class);
-            intent.putExtra("bill_id", bill.getId());
-            intent.putExtra("bill_name", bill.getBillName());
-            intent.putExtra("bill_category", bill.getCategory());
-            intent.putExtra("bill_amount", bill.getAmount());
-            intent.putExtra("bill_due_date", bill.getDueDate());
-            intent.putExtra("bill_status", bill.getStatus());
-            Log.d("YourBillScreen", "Navigating to EditBillScreen with data: " + bill.getBillName());
-            startActivity(intent);
+// Check if the bill status is "Paid"
+            if ("Paid".equalsIgnoreCase(bill.getStatus())) {
+                // Show a message and do not navigate to the edit screen
+                Toast.makeText(this, "You cannot edit a Paid bill!", Toast.LENGTH_SHORT).show();
+            } else {
+                // Navigate to the edit screen
+                Intent intent = new Intent(this, EditBillScreen.class);
+                intent.putExtra("bill_id", bill.getId());
+                intent.putExtra("bill_name", bill.getBillName());
+                intent.putExtra("bill_category", bill.getCategory());
+                intent.putExtra("bill_amount", bill.getAmount());
+                intent.putExtra("bill_due_date", bill.getDueDate());
+                intent.putExtra("bill_status", bill.getStatus());
+                Log.d("YourBillScreen", "Navigating to EditBillScreen with data: " + bill.getBillName());
+                startActivity(intent);
+            }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(billAdapter);
@@ -177,16 +183,6 @@ public class YourBillScreen extends AppCompatActivity {
                                 String dueDate = billMap.containsKey("DueDate") ? billMap.get("DueDate").toString() : "No Due Date";
                                 String statusBill = billMap.containsKey("status") ? billMap.get("status").toString() : "Error";
 
-                                // Check if the bill's due date has passed
-                                SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
-                                Date dueDateObj = sdf.parse(dueDate);
-                                Date currentDate = new Date();
-
-                                if (dueDateObj != null && currentDate.after(dueDateObj) && statusBill.equalsIgnoreCase("unpaid")) {
-                                    // Update the status to "unsettled"
-                                    billMap.put("status", "unsettled");
-                                    statusBill = "unsettled"; // Update local variable
-                                }
 
                                 // Create a new Bill_model_billpage object with the index
                                 Bill_model_billpage bill = new Bill_model_billpage(String.valueOf(index), billName, category, amount, dueDate, statusBill);
@@ -244,6 +240,8 @@ public class YourBillScreen extends AppCompatActivity {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
+                Bill_model_billpage bill = billList.get(position);
+
                 if (direction == ItemTouchHelper.LEFT) {
                     new AlertDialog.Builder(YourBillScreen.this)
                             .setTitle("Delete Item")
@@ -256,16 +254,22 @@ public class YourBillScreen extends AppCompatActivity {
                             })
                             .show();
                 } else if (direction == ItemTouchHelper.RIGHT) {
-                    new AlertDialog.Builder(YourBillScreen.this)
-                            .setTitle("Confirm Payment Status")
-                            .setMessage("Please confirm that this bill has been paid. This action is final.")
-                            .setPositiveButton("Yes", (dialog, which) -> {
-                                markAsPaid(position);
-                            })
-                            .setNegativeButton("No", (dialog, which) -> {
-                                billAdapter.notifyItemChanged(position);
-                            })
-                            .show();
+                    if ("Paid".equalsIgnoreCase(bill.getStatus())) {
+                        Toast.makeText(YourBillScreen.this, "This bill is already marked as Paid!", Toast.LENGTH_SHORT).show();
+                        billAdapter.notifyItemChanged(position);
+                    }
+                   else {
+                       new AlertDialog.Builder(YourBillScreen.this)
+                               .setTitle("Confirm Payment Status")
+                               .setMessage("Please confirm that this bill has been paid. This action is final.")
+                               .setPositiveButton("Yes", (dialog, which) -> {
+                                   markAsPaid(position);
+                               })
+                               .setNegativeButton("No", (dialog, which) -> {
+                                   billAdapter.notifyItemChanged(position);
+                               })
+                               .show();
+                   }
                 }
             }
 
@@ -389,9 +393,12 @@ private void updateStatusToPaidFromFirestore(int position){
         userDocRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 // Fetch the bills array
+                Double billAmount;
                 List<Map<String, Object>> billsArray = (List<Map<String, Object>>) documentSnapshot.get("bills");
                 if (billsArray != null && position < billsArray.size()) {
                     // Remove the item at the specified position
+
+
                     billsArray.remove(position);
 
                     // Update Firestore with the modified array
