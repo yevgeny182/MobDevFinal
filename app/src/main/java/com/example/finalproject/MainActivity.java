@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                                         // Set status based on date comparison
                                         if (dueDateCalendar.before(currentCalendar) && !"paid".equalsIgnoreCase(status)) {
                                             bill.put("status", "unsettled");
+                                            unsettledBillsCount += amount;
                                             isUpdated = true;
                                         }
                                     }
