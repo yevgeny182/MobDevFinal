@@ -414,15 +414,15 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             if (showUpcoming) {
-                                showNotification("Upcoming Bill", "Your bill is due in 5 days.");
+                                showNotification(Spend Insight | Upcoming Bill", "Your bill is due in 5 days.");
                                 upcomingNotificationDisplayed = true; // Update state after showing notification
                             }
                             if (showDueToday) {
-                                showNotification("Bill Due", "Your bill is due today.");
+                                showNotification("Spend Insight | Bill Due", "Your bill is due today.");
                                 dueTodayNotificationDisplayed = true; // Update state after showing notification
                             }
                             if (showOverdue) {
-                                showNotification("Overdue Bill", "Your bill is overdue!");
+                                showNotification("Spend Insight | Overdue Bill", "Your bill is overdue!");
                                 overdueNotificationDisplayed = true; // Update state after showing notification
                             }
 
