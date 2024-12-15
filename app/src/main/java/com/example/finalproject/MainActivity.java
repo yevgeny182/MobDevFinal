@@ -1,7 +1,13 @@
 package com.example.finalproject;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +18,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -65,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        resetNotificationState(this);
+
         //bottom navigation
         add = findViewById(R.id.addButton);
         bills = findViewById(R.id.billButton);
@@ -95,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
         home.setImageResource(R.drawable.baseline_home_24);
         // ------------------ Write Here---------
         expensesCost = findViewById(R.id.tvTotalBillValue);
-        expensesBillPaid= findViewById(R.id.tvPaidBillValue);
-        expensesBillunsettled=findViewById(R.id.tvUnsettledBillValue);
+        expensesBillPaid = findViewById(R.id.tvPaidBillValue);
+        expensesBillunsettled = findViewById(R.id.tvUnsettledBillValue);
 
         getLoggedInUserData();
 
@@ -112,9 +124,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         fetchBills();
+        sendUserNotification();
 
 
     } // End OnCreate()
+
     public void getLoggedInUserData() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -163,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
             tvUsername.setText("Not logged in");
         }
     }
+
     private void fetchBills() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -242,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                                     paidBillsCount += amount;
                                     Log.d("paidBillTotal", "Bills: " + paidBillsCount);
                                 } else if ("unsettled".equalsIgnoreCase(status)) {
-                                    unsettledBillsCount += amount;
+//                                    unsettledBillsCount += amount;
                                     Log.d("BillTotal", "Bills: " + unsettledBillsCount);
                                 }
 
@@ -305,7 +320,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void loadProfileImage() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -330,6 +344,167 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void sendUserNotification() {
+        /*
+        This method sends notification to the user's phone,
+        specs: 5 days before the due date, notify
+               bill is on the exact due date, notify
+               bill is past due, notify
+         */
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            String loggedUserId = currentUser.getUid();
+
+            DocumentReference userDocRef = db.collection("users").document(loggedUserId);
+
+            userDocRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    DocumentSnapshot document = task.getResult();
+
+                    if (document.exists()) {
+
+                        List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
+
+                        if (billsArray != null && !billsArray.isEmpty()) {
+
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
+                            Calendar currentCalendar = Calendar.getInstance();
+                            currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                            currentCalendar.set(Calendar.MINUTE, 0);
+                            currentCalendar.set(Calendar.SECOND, 0);
+                            currentCalendar.set(Calendar.MILLISECOND, 0);
+
+                            SharedPreferences preferences = getBaseContext().getSharedPreferences("NotificationPrefs", Context.MODE_PRIVATE);
+
+                            boolean upcomingNotificationDisplayed = preferences.getBoolean("upcomingNotificationDisplayed", false);
+                            boolean dueTodayNotificationDisplayed = preferences.getBoolean("dueTodayNotificationDisplayed", false);
+                            boolean overdueNotificationDisplayed = preferences.getBoolean("overdueNotificationDisplayed", false);
+
+                            boolean showUpcoming = false;
+                            boolean showDueToday = false;
+                            boolean showOverdue = false;
+
+                            for (Map<String, Object> bill : billsArray) {
+                                String dueDate = bill.get("DueDate").toString();
+                                Log.d("notifDate", "duedate is: " + dueDate);
+
+                                try {
+                                    Date billDueDate = dateFormat.parse(dueDate);
+                                    if (billDueDate != null) {
+                                        Calendar billCalendar = Calendar.getInstance();
+                                        billCalendar.setTime(billDueDate);
+
+                                        long diffDays = (billCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis()) / (24 * 60 * 60 * 1000);
+
+                                        if (diffDays == 5 && !upcomingNotificationDisplayed) {
+                                            showUpcoming = true;
+                                        } else if (diffDays == 0 && !dueTodayNotificationDisplayed) {
+                                            showDueToday = true;
+                                        } else if (diffDays < 0 && !overdueNotificationDisplayed) {
+                                            showOverdue = true;
+                                        }
+                                    }
+
+                                } catch (ParseException e) {
+                                    Log.e("notifDate", "Invalid date format: " + e.getMessage());
+                                }
+                            }
+
+                            if (showUpcoming) {
+                                showNotification("Upcoming Bill", "Your bill is due in 5 days.");
+                                upcomingNotificationDisplayed = true; // Update state after showing notification
+                            }
+                            if (showDueToday) {
+                                showNotification("Bill Due", "Your bill is due today.");
+                                dueTodayNotificationDisplayed = true; // Update state after showing notification
+                            }
+                            if (showOverdue) {
+                                showNotification("Overdue Bill", "Your bill is overdue!");
+                                overdueNotificationDisplayed = true; // Update state after showing notification
+                            }
+
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putBoolean("upcomingNotificationDisplayed", upcomingNotificationDisplayed);
+                            editor.putBoolean("dueTodayNotificationDisplayed", dueTodayNotificationDisplayed);
+                            editor.putBoolean("overdueNotificationDisplayed", overdueNotificationDisplayed);
+                            editor.apply();
+
+                        } else {
+                            // No bills found
+                            Log.d("notif", "No bills found for user.");
+                            billRecyclerView.setVisibility(View.GONE);
+                            emptyTextView.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        Log.w("notif", "User document does not exist.");
+                        billRecyclerView.setVisibility(View.GONE);
+                        emptyTextView.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+        } else {
+            Log.w("UserWarning", "No user is currently logged in.");
+            billRecyclerView.setVisibility(View.GONE);
+            emptyTextView.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    private void showNotification(String title, String message) {
+        if (shouldShowRequestPermissionRationale("android.permission.POST_NOTIFICATIONS")) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Notification Permission Required")
+                    .setMessage("This app requires notification permission to alert you about important updates.")
+                    .setPositiveButton("Grant Permission", (dialog, which) -> {
+                        ActivityCompat.requestPermissions(this, new String[]{"android.permission.POST_NOTIFICATIONS"}, 1001);
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .show();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{"android.permission.POST_NOTIFICATIONS"}, 1001);
+                return; // Exit until permission is granted
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notify = new NotificationChannel(
+                    "bill_notify",
+                    "Bill Notify",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(notify);
+            }
+        }
+
+        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, "bill_notify")
+                .setSmallIcon(R.drawable.spend_insight_logo)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notifManager = NotificationManagerCompat.from(this);
+        notifManager.notify((int) System.currentTimeMillis(), notifBuilder.build());
+    }
+    public void resetNotificationState(Context context) {
+
+        SharedPreferences preferences = context.getSharedPreferences("NotificationPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("upcomingNotificationDisplayed", false);
+        editor.putBoolean("dueTodayNotificationDisplayed", false);
+        editor.putBoolean("overdueNotificationDisplayed", false);
+        editor.apply();
+    }
+
 
 }
 

@@ -164,8 +164,7 @@ public class YourBillScreen extends AppCompatActivity {
                     // Clear the current bill list
                     billList.clear();
 
-                    // Log the raw document data
-                    Log.d("FirestoreData", "Raw Document: " + document.getData());
+//                    Log.d("FirestoreData", "Raw Document: " + document.getData());
 
                     // Get the "bills" array field
                     List<Map<String, Object>> billsArray = (List<Map<String, Object>>) document.get("bills");
@@ -189,7 +188,7 @@ public class YourBillScreen extends AppCompatActivity {
 
                                 // Add the bill to the list
                                 billList.add(bill);
-                                Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill);
+                                //Log.d("FirestoreData", "Parsed Bill: " + billName + ", Status: " + statusBill);
                             } catch (Exception e) {
                                 Log.e("FirestoreError", "Error parsing or updating bill data", e);
                             }
@@ -202,7 +201,7 @@ public class YourBillScreen extends AppCompatActivity {
                         billAdapter.notifyDataSetChanged();
 
                         // Log after bills are loaded
-                        Log.d("FirestoreData", "Total Bills Loaded: " + billList.size());
+//                        Log.d("FirestoreData", "Total Bills Loaded: " + billList.size());
                         recyclerView.setVisibility(View.VISIBLE);
                         noBillsText.setVisibility(View.GONE);
                     } else {
