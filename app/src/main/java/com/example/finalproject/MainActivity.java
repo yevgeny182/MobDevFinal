@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
 
                                         long diffDays = (billCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis()) / (24 * 60 * 60 * 1000);
 
-                                       if(!status.equals("paid"))
+                                       if(!status.equals("paid")){
                                            if (diffDays == 5 && !upcomingNotificationDisplayed) {
                                                showUpcoming = true;
                                            } else if (diffDays == 0 && !dueTodayNotificationDisplayed) {
