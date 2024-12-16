@@ -46,6 +46,7 @@
         android:inputType="text"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
@@ -60,6 +61,7 @@
         android:inputType="text"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/firstNameInput" />
 
@@ -74,6 +76,7 @@
         android:inputType="text"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lastNameInput" />
 
@@ -88,6 +91,7 @@
         android:inputType="text"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/phoneNumberInput" />
 
@@ -102,6 +106,7 @@
         android:inputType="text"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/homeAddress" />
 
@@ -116,6 +121,7 @@
         android:inputType="textPassword"
         android:paddingStart="12dp"
         android:textColorHint="#717171"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/emailInput" />
 
