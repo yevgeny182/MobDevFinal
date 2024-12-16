@@ -390,8 +390,7 @@ public class MainActivity extends AppCompatActivity {
                             for (Map<String, Object> bill : billsArray) {
                                 String dueDate = bill.get("DueDate").toString();
                                 String status = bill.get("status").toString();
-                                Log.d("notifDate", "duedate is: " + dueDate);
-                                Log.d("notifDate", "duedate is: " + dueDate);
+
                                 try {
                                     Date billDueDate = dateFormat.parse(dueDate);
                                     if (billDueDate != null) {
