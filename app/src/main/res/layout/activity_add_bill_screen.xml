@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:background="@drawable/rounded_box_background"
         android:orientation="vertical">
 
@@ -17,18 +16,18 @@
             android:id="@+id/imageView"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:srcCompat="@drawable/spend_insight_logo"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="12dp" />
+            app:srcCompat="@drawable/spend_insight_logo" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:text="Spend Insight"
             android:textColor="#FFFFFF"
             android:textSize="20dp"
@@ -41,8 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:scrollbars="none"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main"
@@ -82,14 +81,13 @@
 
             <Spinner
                 android:id="@+id/categorySpinner"
-                android:entries="@array/bill_categories"
                 android:layout_width="349dp"
                 android:layout_height="43dp"
                 android:layout_marginStart="28dp"
                 android:layout_marginTop="152dp"
+                android:entries="@array/bill_categories"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
                 android:id="@+id/Amount"
@@ -145,6 +143,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="20dp" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Add more views here as needed -->
@@ -155,7 +160,7 @@
     <!-- Footer outside the ScrollView -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:background="@drawable/rounded_box_background"
         android:orientation="vertical">
 
@@ -169,7 +174,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_home_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/addButton"
@@ -180,7 +186,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_add_circle_outline_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/billButton"
@@ -191,7 +198,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/outline_content_paste_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/profileButton"
@@ -202,7 +210,8 @@
             android:background="?attr/selectableItemBackground"
             android:src="@drawable/baseline_person_outline_24"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

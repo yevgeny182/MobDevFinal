@@ -7,11 +7,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/nav_container"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginBottom="0dp"
+        android:layout_height="70dp"
         android:background="@drawable/rounded_box_background"
         android:orientation="vertical">
 
@@ -19,18 +18,18 @@
             android:id="@+id/imageView"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:srcCompat="@drawable/spend_insight_logo"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="6dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="12dp" />
+            app:srcCompat="@drawable/spend_insight_logo" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="72dp"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="22dp"
             android:text="Spend Insight"
             android:textColor="#FFFFFF"
             android:textSize="20dp"
@@ -51,6 +50,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/white"
             tools:ignore="MissingConstraints,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -260,7 +260,7 @@
     <!-- Footer outside the ScrollView -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:background="@drawable/rounded_box_background"
         android:orientation="vertical">
 
