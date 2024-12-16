@@ -389,8 +389,9 @@ public class MainActivity extends AppCompatActivity {
 
                             for (Map<String, Object> bill : billsArray) {
                                 String dueDate = bill.get("DueDate").toString();
+                                String status = bill.get("status").toString();
                                 Log.d("notifDate", "duedate is: " + dueDate);
-
+                                Log.d("notifDate", "duedate is: " + dueDate);
                                 try {
                                     Date billDueDate = dateFormat.parse(dueDate);
                                     if (billDueDate != null) {
@@ -399,13 +400,15 @@ public class MainActivity extends AppCompatActivity {
 
                                         long diffDays = (billCalendar.getTimeInMillis() - currentCalendar.getTimeInMillis()) / (24 * 60 * 60 * 1000);
 
-                                        if (diffDays == 5 && !upcomingNotificationDisplayed) {
-                                            showUpcoming = true;
-                                        } else if (diffDays == 0 && !dueTodayNotificationDisplayed) {
-                                            showDueToday = true;
-                                        } else if (diffDays < 0 && !overdueNotificationDisplayed) {
-                                            showOverdue = true;
-                                        }
+                                       if(!status.equals("paid")){
+                                           if (diffDays == 5 && !upcomingNotificationDisplayed) {
+                                               showUpcoming = true;
+                                           } else if (diffDays == 0 && !dueTodayNotificationDisplayed) {
+                                               showDueToday = true;
+                                           } else if (diffDays < 0 && !overdueNotificationDisplayed) {
+                                               showOverdue = true;
+                                           }
+                                       }
                                     }
 
                                 } catch (ParseException e) {
@@ -496,7 +499,6 @@ public class MainActivity extends AppCompatActivity {
         notifManager.notify((int) System.currentTimeMillis(), notifBuilder.build());
     }
     public void resetNotificationState(Context context) {
-
         SharedPreferences preferences = context.getSharedPreferences("NotificationPrefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("upcomingNotificationDisplayed", false);
