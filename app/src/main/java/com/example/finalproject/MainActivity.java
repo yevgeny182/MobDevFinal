@@ -414,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             if (showUpcoming) {
-                                showNotification(Spend Insight | Upcoming Bill", "Your bill is due in 5 days.");
+                                showNotification("Spend Insight | Upcoming Bill", "Your bill is due in 5 days.");
                                 upcomingNotificationDisplayed = true; // Update state after showing notification
                             }
                             if (showDueToday) {
