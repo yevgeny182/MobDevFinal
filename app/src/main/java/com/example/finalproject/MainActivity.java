@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
                                 String dueDate = bill.get("DueDate").toString();
                                 String status = bill.get("status").toString();
                                 Log.d("notifDate", "duedate is: " + dueDate);
-                                Log.d("notifStatus", "status is: " + status);
+
                                 try {
                                     Date billDueDate = dateFormat.parse(dueDate);
                                     if (billDueDate != null) {
