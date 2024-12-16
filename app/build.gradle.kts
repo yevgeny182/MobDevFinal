@@ -33,7 +33,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -48,6 +47,6 @@ dependencies {
     implementation ("com.github.denzcoskun:ImageSlideshow:0.1.2")
     implementation ("com.squareup.okhttp3:okhttp:4.9.0")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
-
-
+//    implementation ("androidx.core:core-ktx:1.10.1")
+//    implementation ("androidx.appcompat:appcompat:1.6.1")
 }
