@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -304,7 +305,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void scheduleBillNotifications(Context context, String billName, Calendar dueDate) {
+        // 5 days before due date
+        Calendar fiveDaysBefore = (Calendar) dueDate.clone();
+        fiveDaysBefore.add(Calendar.DAY_OF_MONTH, -5);
+        if (fiveDaysBefore.after(Calendar.getInstance())) {
+            NotificationScheduler.scheduleNotification(context, "Bill Reminder", "Your " + billName + " is due in 5 days!", fiveDaysBefore, 1);
+        }
 
+        // On due date
+        if (dueDate.after(Calendar.getInstance())) {
+            NotificationScheduler.scheduleNotification(context, "Bill Reminder", "Your " + billName + " is due today!", dueDate, 2);
+        }
+
+        // Overdue notification (immediate)
+        if (dueDate.before(Calendar.getInstance())) {
+            NotificationScheduler.scheduleNotification(context, "Bill Overdue", "Your " + billName + " is overdue!", Calendar.getInstance(), 3);
+        }
+    }
 
     private void loadProfileImage() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
